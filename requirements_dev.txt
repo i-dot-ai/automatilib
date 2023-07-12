@@ -6,8 +6,7 @@ pep8-naming
 black
 nose
 
-wheel
 coverage
 twine
 
--r ./requirements.lock
+-r ./requirements.txt
