@@ -51,6 +51,10 @@ class ChoicesMeta(enum.EnumMeta):
     def options(cls):
         return tuple({"value": value, "text": text} for value, text in cls.choices)
 
+    @property
+    def mapping(cls):
+        return dict(tuple(cls.choices))
+
 
 class Choices(enum.Enum, metaclass=ChoicesMeta):
     """Class for creating enumerated choices."""
