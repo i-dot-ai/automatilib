@@ -1,0 +1,9 @@
+include LICENSE
+include README.rst
+recursive-include docs *
+recursive-include requirements *
+recursive-include tests *
+recursive-include automatilib *
+recursive-include automatilib/templates *.html
+global-exclude __pycache__
+global-exclude *.py[co]
