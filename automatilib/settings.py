@@ -1,7 +1,7 @@
 INSTALLED_APPS = [
-    "automatilib.cola_auth",
+    "automatilib.automatilib.cola_auth",
 ]
 
 AUTHENTICATION_BACKENDS = [
-    "automatilib.cola_auth.backend.AuthenticationBackend",
+    "automatilib.automatilib.cola_auth.backend.AuthenticationBackend",
 ]
