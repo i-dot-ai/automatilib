@@ -1,0 +1,39 @@
+name: Check code
+
+env:
+  DOCKER_BUILDKIT: 1
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'hotfix/**'
+      - 'develop'
+
+jobs:
+  check_web:
+    name: Check Python
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip setuptools
+        pip install -r requirements-dev.lock
+
+    - name: Run Python code checks
+      run: |
+        isort --check .
+        black --check .
+        flake8
+        bandit -ll -r ./automatilib
