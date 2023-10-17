@@ -87,9 +87,6 @@ class IAIColaLogin(MethodDispatcher):
         redirect_url = settings.LOGIN_REDIRECT_URL
         if request.user.id:
             return redirect(reverse(redirect_url or "index"))
-        # if not (session_id := request.COOKIES.get(settings.SESSION_ID_COOKIE_NAME, None)):
-        #     # TODO: handle this (and following) more gracefully
-        #     return HttpResponseServerError()
 
         self.pre_login()
 
