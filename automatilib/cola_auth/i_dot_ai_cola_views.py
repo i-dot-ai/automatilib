@@ -42,7 +42,7 @@ class IAIColaLogout(MethodDispatcher):
         """
         pass
 
-    def get(self, request: HttpRequest) -> HttpResponse:
+    def get(self, request: HttpRequest, **kwargs: dict) -> HttpResponse:
         """
         Logs a user out of the system and removes the COLA JWT from their browser cookies
         :param request: The HTTP request
@@ -83,7 +83,7 @@ class IAIColaLogin(MethodDispatcher):
         """
         pass
 
-    def get(self, request: HttpRequest) -> HttpResponse:
+    def get(self, request: HttpRequest, **kwargs: dict) -> HttpResponse:
         redirect_url = settings.LOGIN_REDIRECT_URL
         if request.user.id:
             return redirect(reverse(redirect_url or "index"))
