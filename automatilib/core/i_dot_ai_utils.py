@@ -12,8 +12,8 @@ class MethodDispatcher:
         view = super().__new__(cls)
         method_name = request.method.lower()
         methods = {
-            'get': view.get,
-            'post': view.post,
+            "get": view.get,
+            "post": view.post,
         }
         method = methods.get(method_name, None)
         if method:

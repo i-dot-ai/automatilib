@@ -6,7 +6,12 @@ from urllib.parse import unquote
 import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login, logout
-from django.http import HttpRequest, HttpResponse, HttpResponseServerError
+from django.http import (
+    HttpRequest,
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseServerError,
+)
 from django.shortcuts import redirect
 from django.urls import reverse
 from jose import jwt
@@ -127,7 +132,7 @@ class IAIColaLogin(MethodDispatcher):
 
         except (ExpiredSignatureError, JWTClaimsError, JWTError, KeyError) as error:
             LOGGER.error("cookie error:", type(error).__name__)
-            return HttpResponseServerError()
+            return HttpResponseBadRequest()
 
         authenticated_user = {
             "email": payload["email"],
