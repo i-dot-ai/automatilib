@@ -37,7 +37,7 @@ jobs:
 
     - name: Run Python code checks
       run: |
-        isort --check .
-        black --check .
-        flake8
-        bandit -ll -r ./automatilib0
+        poetry run isort --check .
+        poetry run black --check .
+        poetry run flake8
+        poetry run bandit -ll -r ./automatilib0
