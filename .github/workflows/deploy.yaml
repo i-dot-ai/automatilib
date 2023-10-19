@@ -1,0 +1,33 @@
+name: Python package
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip build twine
+    - name: Build and publish
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        python -m build
+        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          python -m twine upload dist/*
+        fi
+        if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+          python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+        fi
