@@ -26,10 +26,13 @@ jobs:
       with:
         python-version: 3.11
 
+    -   name: Install Poetry
+        run: |
+            curl -sSL https://install.python-poetry.org | python -
+
     - name: Install dependencies
       run: |
-        python3 -m pip install --upgrade pip setuptools
-        pip install -r requirements-dev.lock
+        poetry install
 
     - name: Run Python code checks
       run: |
