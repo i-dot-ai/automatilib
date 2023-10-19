@@ -1,8 +1,8 @@
-from automatilib import choices
+from automatilib.core import i_dot_ai_choices
 
 
 def test_choices():
-    class MadeUp(choices.Choices):
+    class MadeUp(i_dot_ai_choices.Choices):
         A = "a"
         B = "b"
         C = "c"
