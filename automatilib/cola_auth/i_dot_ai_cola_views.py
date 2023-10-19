@@ -12,7 +12,7 @@ from django.urls import reverse
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError, JWTClaimsError, JWTError
 
-from automatilib.i_dot_ai_utils import MethodDispatcher
+from automatilib.core.i_dot_ai_utils import MethodDispatcher
 
 LOGGER = logging.getLogger(__name__)
 
@@ -73,11 +73,11 @@ class IAIColaLogin(MethodDispatcher):
         pass
 
     @abstractmethod
-    def handle_claims(self, user: User, token_payload: dict) -> None:
+    def handle_user_jwt_details(self, user: User, token_payload: dict) -> None:
         """
         A method that is invoked after logging/authenticating a user and before `post_login`,
         but before returning an HTTP response.
-        Email, family name and given name are already taken from the token and saved to the user object before this
+        Email is already taken from the token and saved to the user object before this
         :param user: The user that is logged in and authenticated
         :param token_payload: The token payload that includes information from COLA
         """
@@ -130,8 +130,6 @@ class IAIColaLogin(MethodDispatcher):
             return HttpResponseServerError()
 
         authenticated_user = {
-            "given_name": payload["given_name"],
-            "family_name": payload["family_name"],
             "email": payload["email"],
         }
 
@@ -140,7 +138,7 @@ class IAIColaLogin(MethodDispatcher):
             LOGGER.debug(user.__dict__)
             user = authenticate(request=request, user_response=authenticated_user)
             user.save()
-            self.handle_claims(user, payload)
+            self.handle_user_jwt_details(user, payload)
             login(request, user)
             self.post_login()
             return redirect(reverse(redirect_url or "index"))
