@@ -61,6 +61,7 @@ bandit = "^1.7.5"
 nose = "^1.3.7"
 coverage = "^7.3.2"
 twine = "^4.0.2"
+isort = "^5.12.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
