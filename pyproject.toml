@@ -9,11 +9,16 @@ force_grid_wrap = 0
 use_parentheses = true
 ensure_newline_before_comments = true
 
+[tool.flake8]
+max-line-length = 120
+exclude = ".tox,.git,*/migrations/*,*/static/CACHE/*,docs,node_modules,venv"
+extend-ignore = ["E203", "W503", "E231", "N804", "N805", "E731", "N815"]
+
 [project]
 name = "automatilib"
 version = "0.1.0"
-authors = [{name = "i.AIr", email = "i-dot-ai-team@cabinetoffice.gov.uk"}]
-maintainers = [{name = "i.AIr", email = "i-dot-ai-team@cabinetoffice.gov.uk"}]
+authors = [{name = "i.AI", email = "i-dot-ai-team@cabinetoffice.gov.uk"}]
+maintainers = [{name = "i.AI", email = "i-dot-ai-team@cabinetoffice.gov.uk"}]
 license = {text = "BSD"}
 description = "Automatilib is common django code used by the i.AI team."
 readme = "README.rst"
