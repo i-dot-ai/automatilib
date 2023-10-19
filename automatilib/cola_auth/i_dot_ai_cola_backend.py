@@ -20,11 +20,8 @@ class AuthenticationBackend(ModelBackend):
         """
         user_response = kwargs["user_response"]
         user, created = User.objects.get_or_create(
-            email=user_response["email"],
+            email=user_response.items()["email"],
         )
-
-        for key, value in user_response.items():
-            setattr(user, key, value)
         user.save()
         LOGGER.info(f"Set values: {user_response} - from COLA authentication")
         return user
