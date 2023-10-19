@@ -32,7 +32,6 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python3 -m pip install --upgrade pip setuptools
         poetry install --with dev
 
     - name: Run Python code checks
