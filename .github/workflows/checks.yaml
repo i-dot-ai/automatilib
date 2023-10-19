@@ -32,6 +32,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+        python3 -m pip install --upgrade pip setuptools
         poetry install --with dev
 
     - name: Run Python code checks
@@ -39,4 +40,4 @@ jobs:
         isort --check .
         black --check .
         flake8
-        bandit -ll -r ./automatilib
+        bandit -ll -r ./automatilib0
