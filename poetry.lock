@@ -406,6 +406,23 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-use-email-as-username"
+version = "1.4.0"
+description = "A Django app to use email as username for user authentication."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "django_use_email_as_username-1.4.0-py3-none-any.whl", hash = "sha256:4ac2dc6f7d9c0ad7c156fb56a872f6d32bbf21af0a16748dd84650f5d9deaca3"},
+    {file = "django_use_email_as_username-1.4.0.tar.gz", hash = "sha256:58a6f38a487a887bcaefa5435a5abf5620994805f68cb62b2dc3f226bf177fb9"},
+]
+
+[package.dependencies]
+django = ">=1.11"
+
+[package.extras]
+testing = ["codecov", "coverage"]
+
+[[package]]
 name = "docutils"
 version = "0.20.1"
 description = "Docutils -- Python Documentation Utilities"
@@ -1237,4 +1254,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11"
-content-hash = "f5dd68d6dc4103dceadca691eaee0599d502477cac72426a5d8814455109a5f3"
+content-hash = "b02a47c179c76dedca219e994ca12b5006a5d8fc0940d5ac49b51ab2475fa68c"

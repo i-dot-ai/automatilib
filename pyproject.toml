@@ -47,6 +47,7 @@ python = ">=3.11"
 django = "^4.2.6"
 requests = "^2.31.0"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+django-use-email-as-username = "^1.4.0"
 
 
 [tool.poetry.group.dev.dependencies]
