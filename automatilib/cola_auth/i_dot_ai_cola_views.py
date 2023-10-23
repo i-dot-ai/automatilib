@@ -14,6 +14,7 @@ from django.http import (
 )
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.views import View
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError, JWTClaimsError, JWTError
 
@@ -33,7 +34,7 @@ def get_cola_cognito_user_pool_jwk() -> tuple[dict, str] or None:
     return cola_cognito_user_pool_jwk, cola_issuer
 
 
-class IAIColaLogout(MethodDispatcher):
+class IAIColaLogout(View):
     @abstractmethod
     def post_logout(self):
         """
@@ -61,7 +62,7 @@ class IAIColaLogout(MethodDispatcher):
         return response
 
 
-class IAIColaLogin(MethodDispatcher):
+class IAIColaLogin(View):
     @abstractmethod
     def pre_login(self):
         """
