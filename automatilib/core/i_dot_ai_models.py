@@ -1,5 +1,6 @@
 import uuid
 
+from django_use_email_as_username.models import BaseUser, BaseUserManager
 from django.db import models
 
 
@@ -17,3 +18,12 @@ class TimeStampedModel(models.Model):
     class Meta:
         abstract = True
         ordering = ["created_at"]
+
+
+class IDotAiUser(BaseUser, UUIDPrimaryKeyBase):
+    objects = BaseUserManager()
+    username = None
+
+    def save(self, *args, **kwargs):
+        self.email = self.email.lower()
+        super().save(*args, **kwargs)
