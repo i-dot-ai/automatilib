@@ -18,8 +18,6 @@ from django.views import View
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError, JWTClaimsError, JWTError
 
-from automatilib.core.i_dot_ai_utils import MethodDispatcher
-
 LOGGER = logging.getLogger(__name__)
 
 User = get_user_model()
