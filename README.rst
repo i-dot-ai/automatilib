@@ -33,3 +33,18 @@ This is where some of the above can be found:
 - COLA_COGNITO_USER_POOL_ID: In AWS, go to your cognito user pool, in the top table called `User pool overview`, your `User pool ID` is there
 - COLA_LOGIN_URL: Ask the COLA team for this URL
 - COLA_JWT_REGEX_PATTERN: This is one you can adjust how you want to, the baseline is `(?<=:).*(?=\.)`
+
+
+To make use of COLA
+--------
+
+- Add these into your `INSTALLED_APPS` settings:
+    - "automatilib.automatilib.core",
+    - "automatilib.automatilib.cola_auth",
+
+- Add this into your `AUTHENTICATION_BACKEND` setting:
+    - "automatilib.automatilib.cola_auth.i_dot_ai_cola_backend.AuthenticationBackend",
+
+- Import and add the following to your url_patterns:
+    - from automatilib.cola_auth.i_dot_ai_cola_urls import url_patterns as cola_urls
+    - urlpatterns = other_urlpatterns + cola_urls
