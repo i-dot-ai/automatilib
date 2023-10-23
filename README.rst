@@ -31,5 +31,5 @@ This is where some of the above can be found:
 - COLA_COGNITO_CLIENT_ID: In AWS, go to your cognito user pool, then to app integration, then at the bottom you can find your client ID in the table
 - AWS_REGION_NAME: Whichever region in AWS your Cognito pool lives, likely to be `eu-west-2`
 - COLA_COGNITO_USER_POOL_ID: In AWS, go to your cognito user pool, in the top table called `User pool overview`, your `User pool ID` is there
-- COLA_LOGIN_URL: Ask the COLA team for this URL, e.g. Prash
+- COLA_LOGIN_URL: Ask the COLA team for this URL
 - COLA_JWT_REGEX_PATTERN: This is one you can adjust how you want to, the baseline is `(?<=:).*(?=\.)`
