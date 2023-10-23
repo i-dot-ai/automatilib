@@ -24,10 +24,11 @@ LOGGER = logging.getLogger(__name__)
 User = get_user_model()
 
 
-def get_cola_cognito_user_pool_jwk() -> tuple[dict, str]:
+def get_cola_cognito_user_pool_jwk() -> tuple[dict, str] or None:
     cola_issuer = f"https://cognito-idp.{settings.AWS_REGION_NAME}.amazonaws.com/{settings.COLA_COGNITO_USER_POOL_ID}"
     response = requests.get(f"{cola_issuer}/.well-known/jwks.json", timeout=5)
-    assert response.status_code == 200
+    if response.status_code != 200:
+        return None
     cola_cognito_user_pool_jwk = response.json()
     return cola_cognito_user_pool_jwk, cola_issuer
 
@@ -106,8 +107,11 @@ class IAIColaLogin(MethodDispatcher):
         ):
             LOGGER.error("No cookie regex match found")
             return HttpResponseServerError()
-
-        cola_cognito_user_pool_jwk, cola_issuer = get_cola_cognito_user_pool_jwk()
+        jwk_response = get_cola_cognito_user_pool_jwk()
+        if not jwk_response:
+            return HttpResponseServerError()
+        else:
+            cola_cognito_user_pool_jwk, cola_issuer = jwk_response
         header = jwt.get_unverified_header(regex_match.group(0))
         jwt_kid = header["kid"]
         public_key = next(key for key in cola_cognito_user_pool_jwk["keys"] if key["kid"] == jwt_kid)
