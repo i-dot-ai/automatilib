@@ -11,7 +11,6 @@ Features
 - Timestamped, UUID and base user models
 - Initial migration for above models
 - Logic for authenticating with COLA
-- MethodDispatcher
 
 
 Settings
