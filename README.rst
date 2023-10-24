@@ -1,5 +1,5 @@
 i.AI Shared Code
-========
+================
 
 * Free software: MIT license
 
@@ -36,7 +36,7 @@ This is where some of the above can be found:
 
 
 To make use of COLA
---------
+-------------------
 
 - Add these into your `INSTALLED_APPS` settings:
     - "automatilib.automatilib.core",
