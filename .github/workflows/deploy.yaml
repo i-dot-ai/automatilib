@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - develop
+      - feature/COLA-auth
 
 jobs:
   deploy:
@@ -34,5 +35,8 @@ jobs:
           poetry publish
         fi
         if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+          poetry publish --repository testpypi
+        fi
+        if [[ "${{ github.ref }}" == "refs/heads/feature/COLA-auth" ]]; then
           poetry publish --repository testpypi
         fi
