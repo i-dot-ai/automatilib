@@ -97,7 +97,7 @@ class IAIColaLogin(View):
 
         if not (cola_cookie := request.COOKIES.get(settings.COLA_COOKIE_NAME, None)):
             LOGGER.error("No cookie found")
-            return HttpResponseServerError()
+            return HttpResponseServerError()  # TODO: Improve error handling throughout
         if not (
             regex_match := re.search(
                 settings.COLA_JWT_EXTRACTION_REGEX_PATTERN,
