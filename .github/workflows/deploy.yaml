@@ -11,6 +11,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: release
+    permissions:
+        id-token: write
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -27,16 +29,6 @@ jobs:
       run: |
         poetry build
     - name: Publish
-      env:
-        PYPI_USERNAME: __token__
-        PYPI_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-      run: |
-        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-          poetry publish
-        fi
-        if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-          poetry publish --repository testpypi
-        fi
-        if [[ "${{ github.ref }}" == "refs/heads/feature/COLA-auth" ]]; then
-          poetry publish --repository testpypi
-        fi
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: ${{ (github.ref == 'refs/heads/main') && 'https://pypi.org/legacy/' || 'https://test.pypi.org/legacy/' }}
