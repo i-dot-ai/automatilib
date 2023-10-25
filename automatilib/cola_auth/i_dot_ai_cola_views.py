@@ -7,11 +7,7 @@ from urllib.parse import unquote
 import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login, logout
-from django.http import (
-    HttpRequest,
-    HttpResponse,
-    HttpResponseServerError,
-)
+from django.http import HttpRequest, HttpResponse, HttpResponseServerError
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
@@ -97,7 +93,7 @@ class IAIColaLogin(View):
 
         if not (cola_cookie := request.COOKIES.get(settings.COLA_COOKIE_NAME, None)):
             LOGGER.error("No cookie found")
-            return HttpResponse('Unauthorized', status=401)
+            return HttpResponse("Unauthorized", status=401)
         if not (
             regex_match := re.search(
                 settings.COLA_JWT_EXTRACTION_REGEX_PATTERN,
@@ -105,7 +101,7 @@ class IAIColaLogin(View):
             )
         ):
             LOGGER.error("No cookie regex match found")
-            return HttpResponse('Unauthorized', status=401)
+            return HttpResponse("Unauthorized", status=401)
         jwk_response = get_cola_cognito_user_pool_jwk()
         if not jwk_response:
             return HttpResponseServerError()  # TODO: Improve error handling throughout
@@ -135,7 +131,7 @@ class IAIColaLogin(View):
 
         except (ExpiredSignatureError, JWTClaimsError, JWTError, KeyError) as error:
             LOGGER.error("cookie error:", type(error).__name__)
-            return HttpResponse('Unauthorized', status=401)
+            return HttpResponse("Unauthorized", status=401)
 
         authenticated_user = {
             "email": payload["email"],
