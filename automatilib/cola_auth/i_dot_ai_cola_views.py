@@ -1,6 +1,7 @@
 import logging
 import re
 from abc import abstractmethod
+from typing import Optional
 from urllib.parse import unquote
 
 import requests
@@ -9,7 +10,6 @@ from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.http import (
     HttpRequest,
     HttpResponse,
-    HttpResponseBadRequest,
     HttpResponseServerError,
 )
 from django.shortcuts import redirect
@@ -23,7 +23,7 @@ LOGGER = logging.getLogger(__name__)
 User = get_user_model()
 
 
-def get_cola_cognito_user_pool_jwk() -> tuple[dict, str] or None:
+def get_cola_cognito_user_pool_jwk() -> Optional[tuple[dict, str]]:
     cola_issuer = f"https://cognito-idp.{settings.AWS_REGION_NAME}.amazonaws.com/{settings.COLA_COGNITO_USER_POOL_ID}"
     response = requests.get(f"{cola_issuer}/.well-known/jwks.json", timeout=5)
     if response.status_code != 200:
@@ -97,7 +97,7 @@ class IAIColaLogin(View):
 
         if not (cola_cookie := request.COOKIES.get(settings.COLA_COOKIE_NAME, None)):
             LOGGER.error("No cookie found")
-            return HttpResponseServerError()  # TODO: Improve error handling throughout
+            return HttpResponse('Unauthorized', status=401)
         if not (
             regex_match := re.search(
                 settings.COLA_JWT_EXTRACTION_REGEX_PATTERN,
@@ -105,10 +105,10 @@ class IAIColaLogin(View):
             )
         ):
             LOGGER.error("No cookie regex match found")
-            return HttpResponseServerError()
+            return HttpResponse('Unauthorized', status=401)
         jwk_response = get_cola_cognito_user_pool_jwk()
         if not jwk_response:
-            return HttpResponseServerError()
+            return HttpResponseServerError()  # TODO: Improve error handling throughout
         else:
             cola_cognito_user_pool_jwk, cola_issuer = jwk_response
         header = jwt.get_unverified_header(regex_match.group(0))
@@ -135,7 +135,7 @@ class IAIColaLogin(View):
 
         except (ExpiredSignatureError, JWTClaimsError, JWTError, KeyError) as error:
             LOGGER.error("cookie error:", type(error).__name__)
-            return HttpResponseBadRequest()
+            return HttpResponse('Unauthorized', status=401)
 
         authenticated_user = {
             "email": payload["email"],

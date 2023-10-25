@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
@@ -9,7 +10,7 @@ User = get_user_model()
 
 
 class AuthenticationBackend(ModelBackend):
-    def authenticate(self, request, username=None, password=None, **kwargs):
+    def authenticate(self, request, username: Optional[str] = None, password: Optional[str] = None, **kwargs):
         """
         Get user response given by JWT token from kwargs and update the user based on this
         :param request: The HTTP request that is requesting authentication
