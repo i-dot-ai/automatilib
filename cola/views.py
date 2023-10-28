@@ -6,7 +6,7 @@ from urllib.parse import unquote
 
 import requests
 from django.conf import settings
-from django.contrib.auth import authenticate, get_user_model, login, logout
+from django.contrib.auth import authenticate, login, logout
 from django.http import HttpRequest, HttpResponse, HttpResponseServerError
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -15,8 +15,6 @@ from jose import jwt
 from jose.exceptions import ExpiredSignatureError, JWTClaimsError, JWTError
 
 LOGGER = logging.getLogger(__name__)
-
-User = get_user_model()
 
 
 def get_cola_cognito_user_pool_jwk() -> Optional[tuple[dict, str]]:
@@ -28,7 +26,7 @@ def get_cola_cognito_user_pool_jwk() -> Optional[tuple[dict, str]]:
     return cola_cognito_user_pool_jwk, cola_issuer
 
 
-class IAIColaLogout(View):
+class ColaLogout(View):
     @abstractmethod
     def post_logout(self):
         """
@@ -50,13 +48,14 @@ class IAIColaLogout(View):
         :return: A HTTP response without the JWT token cookie
         """
         logout(request)
+
         redirect_url = settings.LOGIN_URL
-        response = redirect(reverse(redirect_url or "index"))
+        response = redirect(reverse(redirect_url))
         response.delete_cookie(settings.COLA_COOKIE_NAME)
         return response
 
 
-class IAIColaLogin(View):
+class ColaLogin(View):
     @abstractmethod
     def pre_login(self):
         """
@@ -74,7 +73,7 @@ class IAIColaLogin(View):
         pass
 
     @abstractmethod
-    def handle_user_jwt_details(self, user: User, token_payload: dict) -> None:
+    def handle_user_jwt_details(self, user, token_payload: dict) -> None:
         """
         A method that is invoked after logging/authenticating a user and before `post_login`,
         but before returning an HTTP response.
@@ -87,7 +86,7 @@ class IAIColaLogin(View):
     def get(self, request: HttpRequest, **kwargs: dict) -> HttpResponse:
         redirect_url = settings.LOGIN_REDIRECT_URL
         if request.user.id:
-            return redirect(reverse(redirect_url or "index"))
+            return redirect(reverse(redirect_url))
 
         self.pre_login()
 
@@ -120,17 +119,11 @@ class IAIColaLogin(View):
                 issuer=cola_issuer,
                 algorithms=["RS256"],
                 key=public_key,
-                options={
-                    "require_aud": True,
-                    "require_iat": True,
-                    "require_exp": True,
-                    "require_iss": True,
-                    "require_sub": True,
-                },
+                options=settings.JWT_DECODE_OPTIONS,
             )
 
         except (ExpiredSignatureError, JWTClaimsError, JWTError, KeyError) as error:
-            LOGGER.error("cookie error:", type(error).__name__)
+            LOGGER.error("cookie error:", *error.args)
             return HttpResponse("Unauthorized", status=401)
 
         authenticated_user = {
@@ -145,7 +138,7 @@ class IAIColaLogin(View):
             self.handle_user_jwt_details(user, payload)
             login(request, user)
             self.post_login()
-            return redirect(reverse(redirect_url or "index"))
+            return redirect(reverse(redirect_url))
 
         LOGGER.error("No user found")
         return HttpResponseServerError()
