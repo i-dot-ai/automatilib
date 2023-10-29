@@ -39,8 +39,8 @@ To make use of COLA
 -------------------
 
 - Add these into your `INSTALLED_APPS` settings:
-    - "automatilib.automatilib.core",
-    - "automatilib.automatilib.cola_auth",
+    - "core.apps.IdotAIConfig"
+    - "cola.apps.ColaAuthConfig"
 
 - Add this into your `AUTHENTICATION_BACKEND` setting:
     - "automatilib.automatilib.cola_auth.i_dot_ai_cola_backend.AuthenticationBackend",
@@ -48,3 +48,9 @@ To make use of COLA
 - Import and add the following to your url_patterns:
     - from automatilib.cola_auth.i_dot_ai_cola_urls import url_patterns as cola_urls
     - urlpatterns = other_urlpatterns + cola_urls
+
+
+How to run Tests
+----------------
+
+DJANGO_SETTINGS_MODULE=example_project.settings pytest --cov cola --cov core --cov-report term-missing --cov-fail-under 80
