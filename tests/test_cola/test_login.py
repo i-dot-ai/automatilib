@@ -1,17 +1,29 @@
+from unittest.mock import patch
+
 import pytest
 from django.urls import reverse
 
+from cola.views import COLA_URL
+
 
 @pytest.mark.django_db
-def test_login(cola_client, cola_cognito_user_pool_jwk, mocker):
+def test_login(cola_client, cola_cognito_user_pool_jwk):
     response = cola_client.get(reverse("hello-world"))
     assert response.status_code == 302
 
-    mocker.patch("cola.views.get_cola_cognito_user_pool_jwk", return_value=cola_cognito_user_pool_jwk)
+    # now we mock requests to the outside world
+    with patch("requests.get") as mock_get:
+        mock_response = mock_get.return_value
+        mock_response.status_code = 200
+        mock_response.json.return_value = cola_cognito_user_pool_jwk
 
-    response = cola_client.get(reverse("hello-world"), follow=True)
+        response = cola_client.get(reverse("hello-world"), follow=True)
+
     assert response.status_code == 200
     assert response.content.decode() == "welcome back alice@cabinetoffice.gov.uk"
+
+    # finally we check that only the right url was mocked
+    mock_get.assert_called_once_with(COLA_URL, timeout=5)
 
 
 @pytest.mark.django_db

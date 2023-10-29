@@ -8,6 +8,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from jose import jwt
 
+from cola.views import COLA_ISSUER
+
 
 @pytest.fixture
 def alice():
@@ -40,9 +42,7 @@ def cola_cognito_user_pool_jwk(private_key):
 
     # Create a JSON payload
     payload = {"alg": "RS256", "e": e_base64, "kid": "MY-KID-ID", "kty": "RSA", "n": n_base64, "use": "sig"}
-    # https://cognito-idp.eu-west-2.amazonaws.com/eu-west-2_v0JPFlorX
-    # https://cognito-idp.eu-west-2.amazonaws.com/eu-west-****
-    yield {"keys": [payload]}, "https://cognito-idp.eu-west-2.amazonaws.com/eu-west-****"
+    yield {"keys": [payload]}
 
 
 @pytest.fixture()
@@ -52,7 +52,7 @@ def token(alice, private_key):
         "email_verified": True,
         "custom:lastLogin": "2023-10-06T11:06:13.730Z",
         "custom:features": "test",
-        "iss": "https://cognito-idp.eu-west-2.amazonaws.com/eu-west-****",
+        "iss": COLA_ISSUER,
         "cognito:username": alice.username,
         "given_name": alice.username,
         "aud": settings.COLA_COGNITO_CLIENT_ID,
@@ -67,7 +67,7 @@ def token(alice, private_key):
         "custom:isAdmin": "true",
     }
 
-    header = {"alg": "RS256", "kid": "MY-KID-ID"}  # Algorithm  # Key ID
+    header = {"alg": "RS256", "kid": "MY-KID-ID"}
 
     # Serialize the private key to PEM format
     private_pem = private_key.private_bytes(

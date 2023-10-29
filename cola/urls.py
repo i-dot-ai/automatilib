@@ -3,8 +3,6 @@ from django.urls import path
 from cola import views
 
 url_patterns = [
-    # path("post-login/", views.ColaLogin.as_view(), name="post-login"),
-    # path("logout/", views.ColaLogout.as_view(), name="logout"),
-    path("login/", views.ColaLogin.as_view(), name="post-login"),
+    path("post-login/", views.ColaLogin.as_view(), name="post-login"),
     path("logout/", views.ColaLogout.as_view(), name="logout"),
 ]
