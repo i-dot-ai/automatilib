@@ -6,7 +6,7 @@ from django.contrib.auth.backends import ModelBackend
 
 LOGGER = logging.getLogger(__name__)
 
-User = get_user_model()
+UserModel = get_user_model()
 
 
 class COLAAuthenticationBackend(ModelBackend):
@@ -20,7 +20,7 @@ class COLAAuthenticationBackend(ModelBackend):
         :return: The user object
         """
         user_response = kwargs["user_response"]
-        user, created = User.objects.get_or_create(
+        user, created = UserModel.objects.get_or_create(
             email=user_response["email"],
         )
         user.save()

@@ -31,7 +31,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "core.apps.IdotAIConfig",
     "cola.apps.ColaAuthConfig",
+    "example_project.apps.ExampleProjectConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -123,14 +125,14 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# AUTH_USER_MODEL = 'cola.ColaAuthConfig'
+AUTH_USER_MODEL = "example_project.MyUser"
 
 AUTHENTICATION_BACKENDS = [
     "cola.backend.COLAAuthenticationBackend",
     "django.contrib.auth.backends.ModelBackend",  # This includes the default backend
 ]
 
-LOGIN_URL = "post-login"
+LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "my-account"
 
 COLA_COOKIE_NAME = "cola"

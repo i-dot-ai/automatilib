@@ -127,7 +127,7 @@ class ColaLogin(View):
             )
 
         except (ExpiredSignatureError, JWTClaimsError, JWTError) as error:
-            LOGGER.error("cookie error:", *error.args)
+            LOGGER.error(f"cookie error: {error}")
             return HttpResponse("Unauthorized", status=401)
 
         authenticated_user = {
@@ -136,7 +136,7 @@ class ColaLogin(View):
 
         if user := authenticate(request=request, user_response=authenticated_user):
             LOGGER.info("Attempting to log user in")
-            LOGGER.debug(user.__dict__)
+            LOGGER.debug(user.id)
             user = authenticate(request=request, user_response=authenticated_user)
             user.save()
             self.handle_user_jwt_details(user, payload)

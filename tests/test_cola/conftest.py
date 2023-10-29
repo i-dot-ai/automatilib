@@ -5,15 +5,15 @@ import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from django.conf import settings
-from django.contrib.auth.models import User
 from jose import jwt
 
 from cola.views import COLA_ISSUER
+from example_project.models import MyUser
 
 
 @pytest.fixture
 def alice():
-    user = User.objects.create_user(username="alice", email="alice@cabinetoffice.gov.uk")
+    user = MyUser.objects.create_user(email="alice@cabinetoffice.gov.uk")
     yield user
 
 
@@ -46,7 +46,7 @@ def cola_cognito_user_pool_jwk(private_key):
 
 
 @pytest.fixture()
-def token(alice, private_key):
+def jwt_payload(alice, private_key):
     payload = {
         "sub": "2612f274-f081-70fc-e3f3-7da285b561a4",
         "email_verified": True,
@@ -67,16 +67,24 @@ def token(alice, private_key):
         "custom:isAdmin": "true",
     }
 
-    header = {"alg": "RS256", "kid": "MY-KID-ID"}
+    yield payload
 
+
+@pytest.fixture
+def private_pem(private_key):
     # Serialize the private key to PEM format
-    private_pem = private_key.private_bytes(
+    pem = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
         encryption_algorithm=serialization.NoEncryption(),
     )
+    yield pem
 
-    token = jwt.encode(payload, private_pem.decode(), algorithm="RS256", headers=header)
+
+@pytest.fixture()
+def token(jwt_payload, private_pem):
+    header = {"alg": "RS256", "kid": "MY-KID-ID"}
+    token = jwt.encode(jwt_payload, private_pem.decode(), algorithm="RS256", headers=header)
     yield token
 
 
