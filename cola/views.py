@@ -119,7 +119,13 @@ class ColaLogin(View):
                 issuer=cola_issuer,
                 algorithms=["RS256"],
                 key=public_key,
-                options=settings.JWT_DECODE_OPTIONS,
+                options={
+                    "require_iat": True,
+                    "require_aud": True,
+                    "require_exp": True,
+                    "require_iss": True,
+                    "require_sub": True,
+                },
             )
 
         except (ExpiredSignatureError, JWTClaimsError, JWTError, KeyError) as error:

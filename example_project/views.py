@@ -7,5 +7,6 @@ def hello_world(request):
     return HttpResponse("Hello, world")
 
 
-def fake_login(request):
-    return HttpResponse("you are logged in")
+@login_required
+def my_account(request):
+    return HttpResponse(f"welcome back {request.user.email}")

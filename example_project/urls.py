@@ -5,7 +5,7 @@ from example_project import views
 
 urlpatterns = [
     path("hello/", views.hello_world, name="hello-world"),
-    path("login/", views.fake_login, name="login"),
+    path("my_account/", views.my_account, name="my-account"),
     path("post-login/", cola.ColaLogin.as_view(), name="post-login"),
     path("logout/", cola.ColaLogout.as_view(), name="logout"),
 ]

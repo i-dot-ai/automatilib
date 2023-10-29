@@ -131,18 +131,10 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 LOGIN_URL = "post-login"
+LOGIN_REDIRECT_URL = "my-account"
 
 COLA_COOKIE_NAME = "cola"
 COLA_COGNITO_CLIENT_ID = "123456"
 COLA_COGNITO_USER_POOL_ID = "123456"
-LOGIN_REDIRECT_URL = "login"
-COLA_JWT_EXTRACTION_REGEX_PATTERN = "(?<=:).*(?=\\.)"
+COLA_JWT_EXTRACTION_REGEX_PATTERN = r"([^\.]+\.)([^\.]+\.)([^\.]+)"
 AWS_REGION_NAME = "eu-west-2"
-
-JWT_DECODE_OPTIONS = {
-    "require_iat": True,
-    "require_aud": True,
-    "require_exp": True,
-    "require_iss": True,
-    "require_sub": True,
-}

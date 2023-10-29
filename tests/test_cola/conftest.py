@@ -1,10 +1,83 @@
+from base64 import urlsafe_b64encode
+from datetime import datetime, timedelta
+
 import pytest
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 from django.conf import settings
+from django.contrib.auth.models import User
+from jose import jwt
+
+
+@pytest.fixture
+def alice():
+    user = User.objects.create_user(username="alice", email="alice@cabinetoffice.gov.uk")
+    yield user
 
 
 @pytest.fixture()
-def token():
-    yield "s%3AeyJraWQiOiJxXC90TzRSbWFSWForXC9uNzdyaUE4b0l3c0xCUWJxcFNWZUtYb2Q0WU0rUDA9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiIyNjEyZjI3NC1mMDgxLTcwZmMtZTNmMy03ZGEyODViNTYxYTQiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiY3VzdG9tOmxhc3RMb2dpbiI6IjIwMjMtMTAtMDZUMTE6MDY6MTMuNzMwWiIsImN1c3RvbTpmZWF0dXJlcyI6InRlc3QiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtd2VzdC0yLmFtYXpvbmF3cy5jb21cL2V1LXdlc3QtMl92MEpQRmxvclgiLCJjb2duaXRvOnVzZXJuYW1lIjoiZWxsaW90Lm1vb3JlQGNhYmluZXRvZmZpY2UuZ292LnVrIiwiZ2l2ZW5fbmFtZSI6IkVsbGlvdCIsImF1ZCI6IjZiajVsaGY4NDYyaWRyMmFtbWNnaGVobm45IiwiZXZlbnRfaWQiOiIwOTEwMmUyZi1mNjBmLTQ4MGYtOTllMC0wOWI0ZWE0NTE1NjgiLCJ0b2tlbl91c2UiOiJpZCIsImN1c3RvbTpwaG9uZU51bWJlciI6Iis0NDczOTc4OTMxNjgiLCJhdXRoX3RpbWUiOjE2OTY1OTEwNjIsImV4cCI6MTY5NjU5MTM2MiwiaWF0IjoxNjk2NTkxMDYyLCJmYW1pbHlfbmFtZSI6Ik1vb3JlIiwiZW1haWwiOiJlbGxpb3QubW9vcmVAY2FiaW5ldG9mZmljZS5nb3YudWsiLCJjdXN0b206aXNBZG1pbiI6InRydWUifQ.FXEFiKSsZB7CiCf3hLKqeg_6vHS88U7egakT41L2n9EU7j40FBJWUTRL57rVJqWz01JPeR8TKXTLSaqBDE-QUdy3Hh7MqNtmf36pjuxT-XwpqzpLQI9BWuG9bbkYfriE-I9TA9-KUv9A-VyxyUh1YV0Ntt2BTpGOf7qLV2FGedv0Ji9uwB7X_aUtcAOff9i4ob84gPGhU0K0veSRLKyedE6fQpspiaffvaLMEA-Q0GHh0IHSEKgI-soWRVXaB85nXKXW-tFgkb3Xd_wxpoh9mNaAun3wBLqMTufGVBhxyKg6LiZhGCud27GJQH5JvITjy2GqazQpsyFZEMLf-NBc3Q.iNzMFCFYoOp%2BQrq0gFXYvLNFSug5LtKpZlfBfgkHDwU"
+def private_key():
+    # Generate an RSA key pair for signing
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+
+    yield key
+
+
+@pytest.fixture
+def cola_cognito_user_pool_jwk(private_key):
+    public_key = private_key.public_key()
+    public_numbers = public_key.public_numbers()
+    e, n = public_numbers.e, public_numbers.n
+
+    def url_encode_public_numbers(number):
+        # Serialize "e" (public exponent) and "n" (modulus) to bytes
+        number_as_bytes = number.to_bytes((number.bit_length() + 7) // 8, "big")
+        return urlsafe_b64encode(number_as_bytes).decode("utf-8")
+
+    # Encode "e" and "n" as base64 URL-safe strings
+    e_base64 = url_encode_public_numbers(e)
+    n_base64 = url_encode_public_numbers(n)
+
+    # Create a JSON payload
+    payload = {"alg": "RS256", "e": e_base64, "kid": "MY-KID-ID", "kty": "RSA", "n": n_base64, "use": "sig"}
+    # https://cognito-idp.eu-west-2.amazonaws.com/eu-west-2_v0JPFlorX
+    # https://cognito-idp.eu-west-2.amazonaws.com/eu-west-****
+    yield {"keys": [payload]}, "https://cognito-idp.eu-west-2.amazonaws.com/eu-west-****"
+
+
+@pytest.fixture()
+def token(alice, private_key):
+    payload = {
+        "sub": "2612f274-f081-70fc-e3f3-7da285b561a4",
+        "email_verified": True,
+        "custom:lastLogin": "2023-10-06T11:06:13.730Z",
+        "custom:features": "test",
+        "iss": "https://cognito-idp.eu-west-2.amazonaws.com/eu-west-****",
+        "cognito:username": alice.username,
+        "given_name": alice.username,
+        "aud": settings.COLA_COGNITO_CLIENT_ID,
+        "event_id": "09102e2f-f60f-480f-99e0-09b4ea451568",
+        "token_use": "id",
+        "custom:phoneNumber": "+07700900676",
+        "auth_time": 1696591062,
+        "exp": datetime.utcnow() + timedelta(hours=1),
+        "iat": 1696591062,
+        "family_name": "Smith",
+        "email": alice.email,
+        "custom:isAdmin": "true",
+    }
+
+    header = {"alg": "RS256", "kid": "MY-KID-ID"}  # Algorithm  # Key ID
+
+    # Serialize the private key to PEM format
+    private_pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    )
+
+    token = jwt.encode(payload, private_pem.decode(), algorithm="RS256", headers=header)
+    yield token
 
 
 @pytest.fixture
