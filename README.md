@@ -41,8 +41,8 @@ Add these into your `INSTALLED_APPS` settings:
 
 ```python
 INSTALLED_APPS = [
-    "core.apps.IdotAIConfig",
-    "cola.apps.ColaAuthConfig",
+    "automatilib.core.apps.IdotAIConfig",
+    "automatilib.cola.apps.ColaAuthConfig",
     ...
 ]
 ```
@@ -51,14 +51,14 @@ Add this into your `AUTHENTICATION_BACKEND` setting:
 
 ```python
 AUTHENTICATION_BACKENDS = [
-    "cola.backend.COLAAuthenticationBackend",
+    "automatilib.cola.backend.COLAAuthenticationBackend",
     "django.contrib.auth.backends.ModelBackend",  # This includes the default backend
 ]
 ```
 
 Import and add the following to your url_patterns:
 ```python
-from automatilib.cola.cola_urls import url_patterns as cola_urls
+from automatilib.cola.urls import url_patterns as cola_urls
 urlpatterns = other_urlpatterns + cola_urls
 ```
 
