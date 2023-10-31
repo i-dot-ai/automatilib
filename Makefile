@@ -1,7 +1,9 @@
 test:
-	DJANGO_SETTINGS_MODULE=example_project.settings pytest --cov cola --cov-report term-missing --cov-fail-under 80
+	DJANGO_SETTINGS_MODULE=example_project.settings poetry run pytest \
+	--cov automatilib --cov-report term-missing --cov-fail-under 90
 
 lint:
-	isort .
-	black .
-	flake8 .
+	poetry run isort .
+	poetry run black .
+	poetry run flake8 .
+	poetry run mypy automatilib/  --ignore-missing-imports

@@ -135,9 +135,7 @@ class ColaLogin(View):
         }
 
         if user := authenticate(request=request, user_response=authenticated_user):
-            LOGGER.info("Attempting to log user in")
-            LOGGER.debug(user.id)
-            user = authenticate(request=request, user_response=authenticated_user)
+            LOGGER.info(f"Attempting to log user {user.pk} in")
             user.save()
             self.handle_user_jwt_details(user, payload)
             login(request, user)
