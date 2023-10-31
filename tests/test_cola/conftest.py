@@ -4,11 +4,12 @@ from datetime import datetime, timedelta
 import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
-from django.conf import settings
 from jose import jwt
 
-from cola.views import COLA_ISSUER
+from example_project import settings
 from example_project.models import MyUser
+
+COLA_ISSUER = f"https://cognito-idp.{settings.AWS_REGION_NAME}.amazonaws.com/{settings.COLA_COGNITO_USER_POOL_ID}"
 
 
 @pytest.fixture

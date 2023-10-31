@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 from django.urls import reverse
 
-from cola.views import COLA_URL
+from automatilib.cola.views import COLA_URL
 
 
 @pytest.mark.django_db

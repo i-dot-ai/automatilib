@@ -21,7 +21,11 @@ authors = ["i.AI <i-dot-ai-team@cabinetoffice.gov.uk>"]
 maintainers = ["i.AI <i-dot-ai-team@cabinetoffice.gov.uk>"]
 license = "BSD"
 description = "Automatilib is common django code used by the i.AI team."
-readme = "README.rst"
+readme = "README.md"
+packages = [
+    { include = "cola" },
+    { include = "core" },
+]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Environment :: Web Environment",

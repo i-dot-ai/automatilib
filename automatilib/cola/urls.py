@@ -1,6 +1,6 @@
 from django.urls import path
 
-from cola import views
+from automatilib.cola import views
 
 url_patterns = [
     path("login/", views.ColaLogin.as_view(), name="login"),

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from cola.urls import url_patterns as cola_urls
+from automatilib.cola.urls import url_patterns as cola_urls
 from example_project import views
 
 urlpatterns = [
