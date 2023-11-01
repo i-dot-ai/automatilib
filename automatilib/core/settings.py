@@ -7,5 +7,3 @@ INSTALLED_APPS = [
 AUTHENTICATION_BACKENDS = [
     "automatlib.cola.backend.AuthenticationBackend",
 ]
-
-AUTH_USER_MODEL = "automatilib.core.User"
