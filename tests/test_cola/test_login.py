@@ -45,7 +45,7 @@ def test_logout(alice, cola_client):
 @pytest.mark.django_db
 def test_already_logged_in(alice, client):
     client.force_login(alice)
-    response = client.get(reverse("login"), follow=True)
+    response = client.get(reverse("post-login"), follow=True)
     assert response.status_code == 200
 
 

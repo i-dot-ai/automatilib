@@ -132,7 +132,7 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",  # This includes the default backend
 ]
 
-LOGIN_URL = "login"
+LOGIN_URL = "post-login"
 LOGIN_REDIRECT_URL = "my-account"
 
 COLA_COOKIE_NAME = "cola"
