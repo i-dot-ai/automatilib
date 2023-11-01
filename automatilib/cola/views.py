@@ -18,7 +18,7 @@ LOGGER = logging.getLogger(__name__)
 
 COLA_ISSUER = f"https://cognito-idp.{settings.AWS_REGION_NAME}.amazonaws.com/{settings.COLA_COGNITO_USER_POOL_ID}"
 
-COLA_URL = f"{COLA_ISSUER}/.well-known/jwks.json"
+COLA_JWK_URL = f"{COLA_ISSUER}/.well-known/jwks.json"
 
 
 class ColaLogout(View):
@@ -97,7 +97,7 @@ class ColaLogin(View):
             LOGGER.error("No cookie regex match found")
             return HttpResponse("Unauthorized", status=401)
 
-        response = requests.get(COLA_URL, timeout=5)
+        response = requests.get(COLA_JWK_URL, timeout=5)
         if response.status_code != 200:
             LOGGER.error("Failed to get expected response from COLA")
             return HttpResponse("Unauthorized", status=401)

@@ -5,7 +5,7 @@ from django.test import override_settings
 from django.urls import reverse
 from jose import jwt
 
-from automatilib.cola.views import COLA_URL
+from automatilib.cola.views import COLA_JWK_URL
 from example_project import settings
 
 
@@ -26,7 +26,7 @@ def test_login(cola_client, cola_cognito_user_pool_jwk):
     assert response.content.decode() == "welcome back alice@cabinetoffice.gov.uk"
 
     # finally we check that only the right url was mocked
-    mock_get.assert_called_once_with(COLA_URL, timeout=5)
+    mock_get.assert_called_once_with(COLA_JWK_URL, timeout=5)
 
 
 @pytest.mark.django_db
