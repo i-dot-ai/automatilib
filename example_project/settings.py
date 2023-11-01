@@ -31,8 +31,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "automatilib.core.apps.IdotAIConfig",
-    "automatilib.cola.apps.ColaAuthConfig",
     "example_project.apps.ExampleProjectConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -129,7 +127,6 @@ AUTH_USER_MODEL = "example_project.MyUser"
 
 AUTHENTICATION_BACKENDS = [
     "automatilib.cola.backend.COLAAuthenticationBackend",
-    "django.contrib.auth.backends.ModelBackend",  # This includes the default backend
 ]
 
 LOGIN_URL = "post-login"
