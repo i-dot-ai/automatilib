@@ -80,7 +80,7 @@ class ColaLogin(View):
         pass
 
     def get(self, request: HttpRequest, **kwargs: dict) -> HttpResponse:
-        redirect_url = settings.LOGIN_REDIRECT_URL
+        redirect_url = settings.LOGIN_REDIRECT_URL or "index"
         if request.user and request.user.is_authenticated:
             return redirect(reverse(redirect_url))
 
