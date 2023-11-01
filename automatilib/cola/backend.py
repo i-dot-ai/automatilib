@@ -27,8 +27,8 @@ class COLAAuthenticationBackend(ModelBackend):
         LOGGER.info(f"Set values: {user_response} - from COLA authentication")
         return user
 
-    # def get_user(self, user_id):
-    #     try:
-    #         return User.objects.get(pk=user_id)
-    #     except User.DoesNotExist:
-    #         return None
+    def get_user(self, user_id):
+        try:
+            return UserModel.objects.get(pk=user_id)
+        except UserModel.DoesNotExist:
+            return None
