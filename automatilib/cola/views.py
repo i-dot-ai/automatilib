@@ -6,6 +6,7 @@ from urllib.parse import unquote
 import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -68,7 +69,7 @@ class ColaLogin(View):
         pass
 
     @abstractmethod
-    def handle_user_jwt_details(self, user, token_payload: dict) -> None:
+    def handle_user_jwt_details(self, user: AbstractBaseUser, token_payload: dict) -> None:
         """
         A method that is invoked after logging/authenticating a user and before `post_login`,
         but before returning an HTTP response.
