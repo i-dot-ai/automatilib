@@ -99,7 +99,7 @@ class ColaLogin(View):
 
         response = requests.get(COLA_URL, timeout=5)
         if response.status_code != 200:
-            LOGGER.error("failed to get expected response from COLA")
+            LOGGER.error("Failed to get expected response from COLA")
             return HttpResponse("Unauthorized", status=401)
         cola_cognito_user_pool_jwk = response.json()
 
