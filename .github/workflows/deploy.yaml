@@ -31,9 +31,9 @@ jobs:
         poetry build
     - name: Publish to test pypi
       uses: pypa/gh-action-pypi-publish@release/v1
-      if: github.ref == 'refs/head/develop'
+      if: github.ref == 'refs/heads/develop'
       with:
         repository-url: 'https://test.pypi.org/legacy/'
     - name: Publish to prod pypi
       uses: pypa/gh-action-pypi-publish@release/v1
-      if: github.ref == 'refs/head/main'
+      if: github.ref == 'refs/heads/main'
