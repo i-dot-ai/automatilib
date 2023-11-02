@@ -29,7 +29,11 @@ jobs:
     - name: Build
       run: |
         poetry build
-    - name: Publish
+    - name: Publish to test pypi
       uses: pypa/gh-action-pypi-publish@release/v1
+      if: github.ref == 'refs/head/develop'
       with:
-        repository-url: ${{ (github.ref == 'refs/heads/main') && 'https://pypi.org/legacy/' || 'https://test.pypi.org/legacy/' }}
+        repository-url: 'https://test.pypi.org/legacy/'
+    - name: Publish to prod pypi
+      uses: pypa/gh-action-pypi-publish@release/v1
+      if: github.ref == 'refs/head/main'
