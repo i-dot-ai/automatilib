@@ -1,13 +1,13 @@
 import logging
 import re
 from abc import abstractmethod
-from typing import Optional
 from urllib.parse import unquote
 
 import requests
 from django.conf import settings
-from django.contrib.auth import authenticate, get_user_model, login, logout
-from django.http import HttpRequest, HttpResponse, HttpResponseServerError
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
@@ -16,19 +16,13 @@ from jose.exceptions import ExpiredSignatureError, JWTClaimsError, JWTError
 
 LOGGER = logging.getLogger(__name__)
 
-User = get_user_model()
+
+COLA_ISSUER = f"https://cognito-idp.{settings.AWS_REGION_NAME}.amazonaws.com/{settings.COLA_COGNITO_USER_POOL_ID}"
+
+COLA_JWK_URL = f"{COLA_ISSUER}/.well-known/jwks.json"
 
 
-def get_cola_cognito_user_pool_jwk() -> Optional[tuple[dict, str]]:
-    cola_issuer = f"https://cognito-idp.{settings.AWS_REGION_NAME}.amazonaws.com/{settings.COLA_COGNITO_USER_POOL_ID}"
-    response = requests.get(f"{cola_issuer}/.well-known/jwks.json", timeout=5)
-    if response.status_code != 200:
-        return None
-    cola_cognito_user_pool_jwk = response.json()
-    return cola_cognito_user_pool_jwk, cola_issuer
-
-
-class IAIColaLogout(View):
+class ColaLogout(View):
     @abstractmethod
     def post_logout(self):
         """
@@ -50,13 +44,14 @@ class IAIColaLogout(View):
         :return: A HTTP response without the JWT token cookie
         """
         logout(request)
+
         redirect_url = settings.LOGIN_URL
-        response = redirect(reverse(redirect_url or "index"))
+        response = redirect(reverse(redirect_url))
         response.delete_cookie(settings.COLA_COOKIE_NAME)
         return response
 
 
-class IAIColaLogin(View):
+class ColaLogin(View):
     @abstractmethod
     def pre_login(self):
         """
@@ -74,7 +69,7 @@ class IAIColaLogin(View):
         pass
 
     @abstractmethod
-    def handle_user_jwt_details(self, user: User, token_payload: dict) -> None:
+    def handle_user_jwt_details(self, user: AbstractBaseUser, token_payload: dict) -> None:
         """
         A method that is invoked after logging/authenticating a user and before `post_login`,
         but before returning an HTTP response.
@@ -85,9 +80,10 @@ class IAIColaLogin(View):
         pass
 
     def get(self, request: HttpRequest, **kwargs: dict) -> HttpResponse:
-        redirect_url = settings.LOGIN_REDIRECT_URL
-        if request.user.id:
-            return redirect(reverse(redirect_url or "index"))
+        if request.user and request.user.is_authenticated:
+            if redirect_url := settings.LOGIN_REDIRECT_URL:
+                return redirect(reverse(redirect_url))
+            return redirect("/")
 
         self.pre_login()
 
@@ -102,35 +98,38 @@ class IAIColaLogin(View):
         ):
             LOGGER.error("No cookie regex match found")
             return HttpResponse("Unauthorized", status=401)
-        jwk_response = get_cola_cognito_user_pool_jwk()
-        if not jwk_response:
-            return HttpResponseServerError()  # TODO: Improve error handling throughout
-        else:
-            cola_cognito_user_pool_jwk, cola_issuer = jwk_response
+
+        response = requests.get(COLA_JWK_URL, timeout=5)
+        if response.status_code != 200:
+            LOGGER.error("Failed to get expected response from COLA")
+            return HttpResponse("Unauthorized", status=401)
+        cola_cognito_user_pool_jwk = response.json()
+
         header = jwt.get_unverified_header(regex_match.group(0))
         jwt_kid = header["kid"]
         public_key = next(key for key in cola_cognito_user_pool_jwk["keys"] if key["kid"] == jwt_kid)
 
+        token = regex_match.group(0)
+        token = ".".join(token.split(".")[:3])
+
         try:
-            token = regex_match.group(0)
-            token = ".".join(token.split(".")[:3])
             payload = jwt.decode(
                 token=token,
                 audience=settings.COLA_COGNITO_CLIENT_ID,
-                issuer=cola_issuer,
+                issuer=COLA_ISSUER,
                 algorithms=["RS256"],
                 key=public_key,
                 options={
-                    "require_aud": True,
                     "require_iat": True,
+                    "require_aud": True,
                     "require_exp": True,
                     "require_iss": True,
                     "require_sub": True,
                 },
             )
 
-        except (ExpiredSignatureError, JWTClaimsError, JWTError, KeyError) as error:
-            LOGGER.error("cookie error:", type(error).__name__)
+        except (ExpiredSignatureError, JWTClaimsError, JWTError) as error:
+            LOGGER.error(f"cookie error: {error}")
             return HttpResponse("Unauthorized", status=401)
 
         authenticated_user = {
@@ -138,14 +137,12 @@ class IAIColaLogin(View):
         }
 
         if user := authenticate(request=request, user_response=authenticated_user):
-            LOGGER.info("Attempting to log user in")
-            LOGGER.debug(user.__dict__)
-            user = authenticate(request=request, user_response=authenticated_user)
+            LOGGER.info(f"Attempting to log user {user.pk} in")
             user.save()
             self.handle_user_jwt_details(user, payload)
             login(request, user)
             self.post_login()
-            return redirect(reverse(redirect_url or "index"))
+            return redirect(reverse(redirect_url))
 
         LOGGER.error("No user found")
-        return HttpResponseServerError()
+        return HttpResponse("Unauthorized", status=401)

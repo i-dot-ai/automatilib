@@ -27,3 +27,6 @@ class IDotAiUser(BaseUser, UUIDPrimaryKeyBase):
     def save(self, *args, **kwargs):
         self.email = self.email.lower()
         super().save(*args, **kwargs)
+
+    class Meta:
+        abstract = True
