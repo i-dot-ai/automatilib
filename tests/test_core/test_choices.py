@@ -1,4 +1,4 @@
-from automatilib import choices
+from automatilib.core import choices
 
 
 def test_choices():
