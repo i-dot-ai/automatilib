@@ -142,7 +142,9 @@ class ColaLogin(View):
             self.handle_user_jwt_details(user, payload)
             login(request, user)
             self.post_login()
-            return redirect(reverse(redirect_url))
+            if redirect_url := settings.LOGIN_REDIRECT_URL:
+                return redirect(reverse(redirect_url))
+            return redirect("/")
 
         LOGGER.error("No user found")
         return HttpResponse("Unauthorized", status=401)
