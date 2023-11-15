@@ -1,12 +1,11 @@
 # i.AI Shared Code
 
-
-Free software: MIT license
+`automatilib` is a django package used and developed by the i.AI team within the Cabinet Office.
+It provides common features used in many of our applications.
 
 
 ## Features
 
-* Choices utility
 * Timestamped, UUID and base user models
 * Initial migration for above models
 * Logic for authenticating with COLA
@@ -68,3 +67,7 @@ urlpatterns = other_urlpatterns + cola_urls
 ```commandline
 DJANGO_SETTINGS_MODULE=example_project.settings pytest --cov cola --cov core --cov-report term-missing --cov-fail-under 80
 ```
+
+## Licence
+
+MIT
