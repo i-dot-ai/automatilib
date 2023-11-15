@@ -7,6 +7,7 @@ import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.base_user import AbstractBaseUser
+from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -15,6 +16,18 @@ from jose import jwt
 from jose.exceptions import ExpiredSignatureError, JWTClaimsError, JWTError
 
 LOGGER = logging.getLogger(__name__)
+
+SETTINGS = (
+    "AWS_REGION_NAME",
+    "COLA_COGNITO_USER_POOL_ID",
+    "COLA_COOKIE_NAME",
+    "COLA_JWT_EXTRACTION_REGEX_PATTERN",
+    "LOGIN_REDIRECT_URL",
+    "LOGIN_URL",
+)
+for key in SETTINGS:
+    if not getattr(settings, key):
+        raise ImproperlyConfigured(f"{key} must be set")
 
 
 COLA_ISSUER = f"https://cognito-idp.{settings.AWS_REGION_NAME}.amazonaws.com/{settings.COLA_COGNITO_USER_POOL_ID}"
