@@ -8,7 +8,7 @@ from django.urls import reverse
 from automatilib.pepsi.core import FakeTokenFactory
 from automatilib.pepsi.forms import COLAUserForm
 
-FAKE_TOKEN_FACTORY = FakeTokenFactory(settings, settings)
+FAKE_TOKEN_FACTORY = FakeTokenFactory(settings, settings.COLA_COGNITO_CLIENT_ID)
 
 
 def log_me_in(request: HttpRequest) -> HttpResponse:
