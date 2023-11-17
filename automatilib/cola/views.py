@@ -33,13 +33,10 @@ for key in SETTINGS:
 COLA_ISSUER = f"https://cognito-idp.{settings.AWS_REGION_NAME}.amazonaws.com/{settings.COLA_COGNITO_USER_POOL_ID}"
 
 
-def get_request():
-    """this is its own method so that we can mock it for testing"""
-    if getattr(settings, "COLA_JWK_URL", None):
-        url = settings.COLA_JWK_URL
-    else:
-        url = f"{COLA_ISSUER}/.well-known/jwks.json"
-    return requests.get(url, timeout=5)
+if getattr(settings, "COLA_JWK_URL", None) is not None:
+    COLA_JWK_URL = settings.COLA_JWK_URL
+else:
+    COLA_JWK_URL = f"{COLA_ISSUER}/.well-known/jwks.json"
 
 
 class ColaLogout(View):
@@ -119,7 +116,7 @@ class ColaLogin(View):
             LOGGER.error("No cookie regex match found")
             return HttpResponse("Unauthorized", status=401)
 
-        response = get_request()
+        response = requests.get(COLA_JWK_URL, timeout=5)
         if response.status_code != 200:
             LOGGER.error("Failed to get expected response from COLA")
             return HttpResponse("Unauthorized", status=401)
