@@ -1,8 +1,14 @@
 import json
 
+from django.conf import settings
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+
+from automatilib.pepsi.core import FakeTokenFactory
+from automatilib.pepsi.forms import COLAUserForm
+
+FAKE_TOKEN_FACTORY = FakeTokenFactory(settings, settings)
 
 
 def log_me_in(request: HttpRequest) -> HttpResponse:
@@ -10,7 +16,7 @@ def log_me_in(request: HttpRequest) -> HttpResponse:
         form = COLAUserForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data["email"]
-            payload = jwt_payload(email)
+            payload = FAKE_TOKEN_FACTORY.generate_token(email)
 
             # Set a cookie with a name and value
             response = redirect(reverse(settings.LOGIN_REDIRECT_URL))
@@ -25,5 +31,6 @@ def log_me_in(request: HttpRequest) -> HttpResponse:
     return render(request, "login.html", {"form": form})
 
 
-def cola_cognito_user_pool_jwk(_: HttpRequest) -> HttpResponse:
-    return HttpResponse(json.dumps(COLA_COGNITO_USER_POOL_JWK, indent=2), status=200)
+def get_cola_cognito_user_pool_jwk(_: HttpRequest) -> HttpResponse:
+    cola_cognito_user_pool_jwk = FAKE_TOKEN_FACTORY.cola_cognito_user_pool_jwk()
+    return HttpResponse(json.dumps(cola_cognito_user_pool_jwk, indent=2), status=200)
