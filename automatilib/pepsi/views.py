@@ -12,7 +12,7 @@ from automatilib.pepsi.forms import COLAUserForm
 FAKE_TOKEN_FACTORY = FakeTokenFactory(COLA_ISSUER, settings.COLA_COGNITO_CLIENT_ID)
 
 
-def authenticate_user(request: HttpRequest) -> HttpResponse:
+def authenticate_anyone(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = COLAUserForm(request.POST)
         if form.is_valid():
@@ -20,7 +20,7 @@ def authenticate_user(request: HttpRequest) -> HttpResponse:
             payload = FAKE_TOKEN_FACTORY.generate_token(email)
 
             # Set a cookie with a name and value
-            response = redirect(reverse(settings.LOGIN_REDIRECT_URL))
+            response = redirect("/post-login/")
             response.set_cookie(
                 settings.COLA_COOKIE_NAME,
                 payload,
@@ -32,6 +32,6 @@ def authenticate_user(request: HttpRequest) -> HttpResponse:
     return render(request, "login.html", {"form": form})
 
 
-def get_cola_cognito_user_pool_jwk(_: HttpRequest) -> HttpResponse:
+def get_fake_cognito_user_pool_jwk(_: HttpRequest) -> HttpResponse:
     cola_cognito_user_pool_jwk = FAKE_TOKEN_FACTORY.cola_cognito_user_pool_jwk()
     return HttpResponse(json.dumps(cola_cognito_user_pool_jwk, indent=2), status=200)

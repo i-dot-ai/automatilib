@@ -77,7 +77,7 @@ WSGI_APPLICATION = "example_project.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
+        "NAME": "db.sqlite",
     }
 }
 
@@ -132,6 +132,8 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_URL = "post-login"
 LOGIN_REDIRECT_URL = "my-account"
 
+# LOGIN_URL = "/authenticate-anyone/"
+# COLA_JWK_URL = "http://127.0.0.1:8000/get-fake-cognito-user-pool-jwk/"
 COLA_COOKIE_NAME = "cola"
 COLA_COGNITO_CLIENT_ID = "123456"
 COLA_COGNITO_USER_POOL_ID = "123456"
