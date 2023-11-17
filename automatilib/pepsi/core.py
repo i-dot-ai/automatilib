@@ -6,8 +6,6 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from jose import jwt
 
 
-
-
 def url_encode_public_numbers(number):
     """Serialize "e" (public exponent) and "n" (modulus) to bytes"""
     number_as_bytes = number.to_bytes((number.bit_length() + 7) // 8, "big")
@@ -66,7 +64,3 @@ class FakeTokenFactory:
             headers={"alg": "RS256", "kid": "MY-KID-ID"},
         )
         return token
-
-
-
-

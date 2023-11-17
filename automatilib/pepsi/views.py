@@ -2,16 +2,17 @@ import json
 
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
+from automatilib.cola.views import COLA_ISSUER
 from automatilib.pepsi.core import FakeTokenFactory
 from automatilib.pepsi.forms import COLAUserForm
 
-FAKE_TOKEN_FACTORY = FakeTokenFactory(settings, settings.COLA_COGNITO_CLIENT_ID)
+FAKE_TOKEN_FACTORY = FakeTokenFactory(COLA_ISSUER, settings.COLA_COGNITO_CLIENT_ID)
 
 
-def log_me_in(request: HttpRequest) -> HttpResponse:
+def authenticate_user(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         form = COLAUserForm(request.POST)
         if form.is_valid():
