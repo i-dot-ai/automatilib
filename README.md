@@ -9,7 +9,7 @@ It provides common features used in many of our applications.
 * Timestamped, UUID and base user models
 * Initial migration for above models
 * Logic for authenticating with COLA
-
+* A Fake COLA authenticator to allow for local testing
 
 ## Settings
 
@@ -61,6 +61,20 @@ from automatilib.cola.urls import url_patterns as cola_urls
 urlpatterns = other_urlpatterns + cola_urls
 ```
 
+## How to use fake COLA
+Include the following urls
+
+```python
+from automatilib.pepsi.urls import url_patterns as pepsi_urls
+urlpatterns += pepsi_urls
+```
+
+and the following settings
+
+```python
+LOGIN_URL="/authenticate-anyone/"
+COLA_JWK_URL="http://localhost:80/get-fake-cognito-user-pool-jwk/"
+```
 
 ## How to run Tests
 

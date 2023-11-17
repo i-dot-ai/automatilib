@@ -1,21 +1,20 @@
-# LOGIN_URL = "/authenticate-anyone/"
-# COLA_JWK_URL = "http://127.0.0.1:8000/get-fake-cognito-user-pool-jwk/"
 import pytest
+from django.test import override_settings
 from django.urls import reverse
 
 
 @pytest.mark.django_db
-def test_login(client):
-    response = client.get(reverse("hello-world"), follow=True)
-    assert response.status_code == 302
+@override_settings(LOGIN_URL="/authenticate-anyone/")
+def test_login(client, mocker):
+    initial_response = client.get(reverse("hello-world"))
+    assert initial_response.status_code == 302
+    assert initial_response.url == "/authenticate-anyone/?next=/hello/"
 
-    # now we mock requests to the outside world
+    email = "alice@cabinetoffice.gov.uk"
+    mocker.patch(
+        "automatilib.cola.views.get_request", return_value=client.get(reverse("get_fake_cognito_user_pool_jwk"))
+    )
+    login_response = client.post(initial_response.url, data={"email": email}, follow=True)
 
-    response = client.get(reverse("hello-world"), follow=True)
-
-    assert response.status_code == 200
-    assert response.content.decode() == "welcome back alice@cabinetoffice.gov.uk"
-
-    # finally we check that only the right url was mocked
-    mock_get.assert_called_once_with(COLA_JWK_URL, timeout=5)
-
+    assert login_response.status_code == 200
+    assert login_response.content.decode() == f"welcome back {email}"

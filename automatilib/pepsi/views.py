@@ -3,7 +3,6 @@ import json
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
-from django.urls import reverse
 
 from automatilib.cola.views import COLA_ISSUER
 from automatilib.pepsi.core import FakeTokenFactory
@@ -34,4 +33,4 @@ def authenticate_anyone(request: HttpRequest) -> HttpResponse:
 
 def get_fake_cognito_user_pool_jwk(_: HttpRequest) -> HttpResponse:
     cola_cognito_user_pool_jwk = FAKE_TOKEN_FACTORY.cola_cognito_user_pool_jwk()
-    return HttpResponse(json.dumps(cola_cognito_user_pool_jwk, indent=2), status=200)
+    return HttpResponse(json.dumps(cola_cognito_user_pool_jwk), status=200, content_type="application/json")
