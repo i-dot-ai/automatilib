@@ -116,7 +116,6 @@ class ColaLogin(View):
             return HttpResponse("Unauthorized", status=401)
 
         response = requests.get(COLA_JWK_URL, timeout=5)
-        print(COLA_JWK_URL, response.status_code)
         if response.status_code != 200:
             LOGGER.error("Failed to get expected response from COLA")
             return HttpResponse("Unauthorized", status=401)
