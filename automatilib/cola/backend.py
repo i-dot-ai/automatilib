@@ -19,12 +19,16 @@ class COLAAuthenticationBackend(ModelBackend):
         :param kwargs: The kwargs dict containing the JWT token body
         :return: The user object
         """
-        user_response = kwargs["user_response"]
+        try:
+            email = kwargs["user_response"]["email"]
+        except KeyError:
+            LOGGER.error(f"non-COLA authentication attempt made")
+            return None
         user, created = UserModel.objects.get_or_create(
-            email=user_response["email"],
+            email=email,
         )
-        user.save()
-        LOGGER.info(f"Set values: {user_response} - from COLA authentication")
+        if created:
+            LOGGER.info(f"created new user: {email} from COLA authentication")
         return user
 
     def get_user(self, user_id):
