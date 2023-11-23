@@ -22,7 +22,7 @@ class COLAAuthenticationBackend(ModelBackend):
         try:
             email = kwargs["user_response"]["email"]
         except KeyError:
-            LOGGER.error(f"non-COLA authentication attempt made")
+            LOGGER.error("non-COLA authentication attempt made")
             return None
         user, created = UserModel.objects.get_or_create(
             email=email,
