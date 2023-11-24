@@ -16,7 +16,6 @@ It provides common features used in many of our applications.
 * `LOGIN_REDIRECT_URL` - The URL to redirect users to post-login
 * `LOGIN_URL` - The URL to redirect users to if they are not logged in
 * `COLA_COOKIE_NAME` - The name of the cookie to check for COLA JWT
-* `COLA_JWT_EXTRACTION_REGEX_PATTERN` - The regex used to extract the JWT from the COLA cookie
 * `COLA_COGNITO_CLIENT_ID` - The cognito client ID found in AWS
 * `AWS_REGION_NAME` - The AWS region that the user pool and cognito client live in
 * `COLA_COGNITO_USER_POOL_ID` - The cognito user pool ID in AWS
