@@ -16,7 +16,7 @@ extend-ignore = ["E203", "W503", "E231", "N804", "N805", "E731", "N815"]
 
 [tool.poetry]
 name = "automatilib"
-version = "0.2.1"
+version = "1.0.2"
 authors = ["i.AI <i-dot-ai-team@cabinetoffice.gov.uk>"]
 maintainers = ["i.AI <i-dot-ai-team@cabinetoffice.gov.uk>"]
 license = "BSD"
