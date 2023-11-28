@@ -29,17 +29,19 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install Poetry
-      run: |
-        curl -sSL https://install.python-poetry.org | python -
+    - name: Run image
+      uses: abatilo/actions-poetry@v2
+      with:
+        poetry-version: 1.7.0
 
     - name: Install dependencies
       run: |
         poetry install --with dev
 
-    - name: Run Python code checks
+    - name: Run lint
       run: |
-        poetry run isort --check .
-        poetry run black --check .
-        poetry run flake8
-        poetry run bandit -ll -r ./automatilib0
+          make lint
+
+    - name: Run tests
+      run: |
+        make test

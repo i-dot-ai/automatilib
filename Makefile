@@ -7,3 +7,4 @@ lint:
 	poetry run black .
 	poetry run flake8 .
 	poetry run mypy automatilib/  --ignore-missing-imports
+	poetry run bandit -ll -r ./automatilib0

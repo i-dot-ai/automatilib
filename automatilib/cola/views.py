@@ -1,5 +1,4 @@
 import logging
-import re
 from abc import abstractmethod
 from urllib.parse import unquote
 
@@ -7,6 +6,7 @@ import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.base_user import AbstractBaseUser
+from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -15,6 +15,17 @@ from jose import jwt
 from jose.exceptions import ExpiredSignatureError, JWTClaimsError, JWTError
 
 LOGGER = logging.getLogger(__name__)
+
+SETTINGS = (
+    "AWS_REGION_NAME",
+    "COLA_COGNITO_USER_POOL_ID",
+    "COLA_COOKIE_NAME",
+    "LOGIN_REDIRECT_URL",
+    "LOGIN_URL",
+)
+for setting_key in SETTINGS:
+    if not getattr(settings, setting_key):
+        raise ImproperlyConfigured(f"{setting_key} must be set")
 
 
 COLA_ISSUER = f"https://cognito-idp.{settings.AWS_REGION_NAME}.amazonaws.com/{settings.COLA_COGNITO_USER_POOL_ID}"
@@ -81,36 +92,24 @@ class ColaLogin(View):
 
     def get(self, request: HttpRequest, **kwargs: dict) -> HttpResponse:
         if request.user and request.user.is_authenticated:
-            if redirect_url := settings.LOGIN_REDIRECT_URL:
-                return redirect(reverse(redirect_url))
-            return redirect("/")
+            return redirect(reverse(settings.LOGIN_REDIRECT_URL))
 
         self.pre_login()
 
         if not (cola_cookie := request.COOKIES.get(settings.COLA_COOKIE_NAME, None)):
             LOGGER.error("No cookie found")
             return HttpResponse("Unauthorized", status=401)
-        if not (
-            regex_match := re.search(
-                settings.COLA_JWT_EXTRACTION_REGEX_PATTERN,
-                unquote(cola_cookie),
-            )
-        ):
-            LOGGER.error("No cookie regex match found")
-            return HttpResponse("Unauthorized", status=401)
 
         response = requests.get(COLA_JWK_URL, timeout=5)
         if response.status_code != 200:
             LOGGER.error("Failed to get expected response from COLA")
             return HttpResponse("Unauthorized", status=401)
+
         cola_cognito_user_pool_jwk = response.json()
 
-        header = jwt.get_unverified_header(regex_match.group(0))
-        jwt_kid = header["kid"]
-        public_key = next(key for key in cola_cognito_user_pool_jwk["keys"] if key["kid"] == jwt_kid)
-
-        token = regex_match.group(0)
-        token = ".".join(token.split(".")[:3])
+        token = unquote(cola_cookie)
+        header = jwt.get_unverified_header(token)
+        public_key = next(key for key in cola_cognito_user_pool_jwk["keys"] if key["kid"] == header["kid"])
 
         try:
             payload = jwt.decode(
@@ -142,9 +141,7 @@ class ColaLogin(View):
             self.handle_user_jwt_details(user, payload)
             login(request, user)
             self.post_login()
-            if redirect_url := settings.LOGIN_REDIRECT_URL:
-                return redirect(reverse(redirect_url))
-            return redirect("/")
+            return redirect(reverse(settings.LOGIN_REDIRECT_URL))
 
         LOGGER.error("No user found")
         return HttpResponse("Unauthorized", status=401)
