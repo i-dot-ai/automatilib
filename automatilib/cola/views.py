@@ -92,9 +92,7 @@ class ColaLogin(View):
 
     def get(self, request: HttpRequest, **kwargs: dict) -> HttpResponse:
         if request.user and request.user.is_authenticated:
-            if redirect_url := settings.LOGIN_REDIRECT_URL:
-                return redirect(reverse(redirect_url))
-            return redirect("/")
+            return redirect(reverse(settings.LOGIN_REDIRECT_URL))
 
         self.pre_login()
 
@@ -143,9 +141,7 @@ class ColaLogin(View):
             self.handle_user_jwt_details(user, payload)
             login(request, user)
             self.post_login()
-            if redirect_url := settings.LOGIN_REDIRECT_URL:
-                return redirect(reverse(redirect_url))
-            return redirect("/")
+            return redirect(reverse(settings.LOGIN_REDIRECT_URL))
 
         LOGGER.error("No user found")
         return HttpResponse("Unauthorized", status=401)

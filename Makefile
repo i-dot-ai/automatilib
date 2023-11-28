@@ -1,6 +1,6 @@
 test:
 	DJANGO_SETTINGS_MODULE=example_project.settings poetry run pytest \
-	--cov automatilib --cov-report term-missing --cov-fail-under 85
+	--cov automatilib --cov-report term-missing --cov-fail-under 90
 
 lint:
 	poetry run isort .
