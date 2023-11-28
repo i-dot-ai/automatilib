@@ -1,12 +1,11 @@
 # i.AI Shared Code
 
-
-Free software: MIT license
+`automatilib` is a django package used and developed by the i.AI team within the Cabinet Office.
+It provides common features used in many of our applications.
 
 
 ## Features
 
-* Choices utility
 * Timestamped, UUID and base user models
 * Initial migration for above models
 * Logic for authenticating with COLA
@@ -17,7 +16,6 @@ Free software: MIT license
 * `LOGIN_REDIRECT_URL` - The URL to redirect users to post-login
 * `LOGIN_URL` - The URL to redirect users to if they are not logged in
 * `COLA_COOKIE_NAME` - The name of the cookie to check for COLA JWT
-* `COLA_JWT_EXTRACTION_REGEX_PATTERN` - The regex used to extract the JWT from the COLA cookie
 * `COLA_COGNITO_CLIENT_ID` - The cognito client ID found in AWS
 * `AWS_REGION_NAME` - The AWS region that the user pool and cognito client live in
 * `COLA_COGNITO_USER_POOL_ID` - The cognito user pool ID in AWS
@@ -68,3 +66,7 @@ urlpatterns = other_urlpatterns + cola_urls
 ```commandline
 DJANGO_SETTINGS_MODULE=example_project.settings pytest --cov cola --cov core --cov-report term-missing --cov-fail-under 80
 ```
+
+## Licence
+
+MIT

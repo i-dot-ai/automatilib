@@ -1,7 +1,6 @@
 from unittest.mock import patch
 
 import pytest
-from django.test import override_settings
 from django.urls import reverse
 from jose import jwt
 
@@ -89,11 +88,4 @@ def test_invalid_token(client, jwt_payload, private_pem, cola_cognito_user_pool_
 
         response = client.get(reverse("hello-world"), follow=True)
 
-    assert response.status_code == 401
-
-
-@pytest.mark.django_db
-@override_settings(COLA_JWT_EXTRACTION_REGEX_PATTERN="fake-regex")
-def test_invalid_regex(cola_client, cola_cognito_user_pool_jwk):
-    response = cola_client.get(reverse("hello-world"), follow=True)
     assert response.status_code == 401
