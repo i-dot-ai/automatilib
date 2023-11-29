@@ -108,6 +108,10 @@ class ColaLogin(View):
         cola_cognito_user_pool_jwk = response.json()
 
         token = unquote(cola_cookie)
+
+        if token.startswith("s:") and token.count(".") == 3:
+            token = ".".join(token[2:].split(".")[:3])
+
         header = jwt.get_unverified_header(token)
         public_key = next(key for key in cola_cognito_user_pool_jwk["keys"] if key["kid"] == header["kid"])
 
