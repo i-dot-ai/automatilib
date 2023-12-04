@@ -7,7 +7,12 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.core.exceptions import ImproperlyConfigured
-from django.http import HttpRequest, HttpResponse
+from django.http import (
+    HttpRequest,
+    HttpResponse,
+    HttpResponsePermanentRedirect,
+    HttpResponseRedirect,
+)
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
@@ -90,7 +95,9 @@ class ColaLogin(View):
         """
         pass
 
-    def get(self, request: HttpRequest, **kwargs: dict) -> HttpResponse:
+    def get(
+        self, request: HttpRequest, **kwargs: dict
+    ) -> HttpResponse | HttpResponseRedirect | HttpResponsePermanentRedirect:
         if request.user and request.user.is_authenticated:
             return redirect(reverse(settings.LOGIN_REDIRECT_URL))
 
@@ -133,11 +140,13 @@ class ColaLogin(View):
         except (ExpiredSignatureError, JWTClaimsError, JWTError) as error:
             LOGGER.error(f"cookie error: {error}")
             if getattr(settings, "COLA_LOGIN_FAILURE", None) is not None:
-                http_response = redirect(reverse(settings.LOGIN_FAILURE), status=401)
-            else:
-                http_response = HttpResponse("Unauthorized", status=401)
-            http_response.delete_cookie(settings.COLA_COOKIE_NAME)
-            return http_response
+                permanent_redirect = redirect(reverse(settings.LOGIN_FAILURE), status=401)
+                permanent_redirect.delete_cookie(settings.COLA_COOKIE_NAME)
+                return permanent_redirect
+
+            temporary_redirect = HttpResponse("Unauthorized", status=401)
+            temporary_redirect.delete_cookie(settings.COLA_COOKIE_NAME)
+            return temporary_redirect
 
         authenticated_user = {
             "email": payload["email"],
