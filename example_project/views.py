@@ -10,3 +10,7 @@ def hello_world(request):
 @login_required
 def my_account(request):
     return HttpResponse(f"welcome back {request.user.email}")
+
+
+def login_failure(_):
+    return HttpResponse("go away!", status=401)

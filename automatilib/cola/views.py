@@ -1,5 +1,6 @@
 import logging
 from abc import abstractmethod
+from typing import Union
 from urllib.parse import unquote
 
 import requests
@@ -97,7 +98,7 @@ class ColaLogin(View):
 
     def get(
         self, request: HttpRequest, **kwargs: dict
-    ) -> HttpResponse | HttpResponseRedirect | HttpResponsePermanentRedirect:
+    ) -> Union[HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect]:
         if request.user and request.user.is_authenticated:
             return redirect(reverse(settings.LOGIN_REDIRECT_URL))
 
@@ -140,7 +141,7 @@ class ColaLogin(View):
         except (ExpiredSignatureError, JWTClaimsError, JWTError) as error:
             LOGGER.error(f"cookie error: {error}")
             if getattr(settings, "COLA_LOGIN_FAILURE", None) is not None:
-                permanent_redirect = redirect(reverse(settings.LOGIN_FAILURE), status=401)
+                permanent_redirect = redirect(reverse(settings.COLA_LOGIN_FAILURE), status=401)
                 permanent_redirect.delete_cookie(settings.COLA_COOKIE_NAME)
                 return permanent_redirect
 
