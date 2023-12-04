@@ -7,7 +7,12 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.core.exceptions import ImproperlyConfigured
-from django.http import HttpRequest, HttpResponse
+from django.http import (
+    HttpRequest,
+    HttpResponse,
+    HttpResponsePermanentRedirect,
+    HttpResponseRedirect,
+)
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
@@ -90,7 +95,9 @@ class ColaLogin(View):
         """
         pass
 
-    def get(self, request: HttpRequest, **kwargs: dict) -> HttpResponse:
+    def get(
+        self, request: HttpRequest, **kwargs: dict
+    ) -> HttpResponse | HttpResponseRedirect | HttpResponsePermanentRedirect:
         if request.user and request.user.is_authenticated:
             return redirect(reverse(settings.LOGIN_REDIRECT_URL))
 
