@@ -130,10 +130,14 @@ class ColaLogin(View):
                     "require_sub": True,
                 },
             )
-
         except (ExpiredSignatureError, JWTClaimsError, JWTError) as error:
             LOGGER.error(f"cookie error: {error}")
-            return HttpResponse("Unauthorized", status=401)
+            if getattr(settings, "COLA_LOGIN_FAILURE", None) is not None:
+                http_response = redirect(reverse(settings.LOGIN_FAILURE), status=401)
+            else:
+                http_response = HttpResponse("Unauthorized", status=401)
+            http_response.delete_cookie(settings.COLA_COOKIE_NAME)
+            return http_response
 
         authenticated_user = {
             "email": payload["email"],
