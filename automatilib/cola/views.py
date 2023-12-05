@@ -146,7 +146,7 @@ class ColaLogin(View):
                 return permanent_redirect
 
             temporary_redirect = HttpResponse("Unauthorized", status=401)
-            temporary_redirect.delete_cookie(settings.COLA_COOKIE_NAME)
+            response.delete_cookie(settings.COLA_COOKIE_NAME)
             return temporary_redirect
 
         authenticated_user = {
