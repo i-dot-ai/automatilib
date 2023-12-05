@@ -6,5 +6,5 @@ from example_project import views
 urlpatterns = [
     path("hello/", views.hello_world, name="hello-world"),
     path("my_account/", views.my_account, name="my-account"),
-    path("/login-failure", views.login_failure, name="login-failure"),
+    path("login-failure/", views.login_failure, name="login-failure"),
 ] + cola_urls
