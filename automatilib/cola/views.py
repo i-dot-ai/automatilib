@@ -156,7 +156,7 @@ class ColaLogin(View):
         if user := authenticate(request=request, user_response=authenticated_user):
             LOGGER.info(f"Attempting to log user {user.pk} in")
             if hasattr(user, "is_staff"):
-                user.is_staff = payload["custom:isAdmin"].lower() == "true"
+                user.is_staff = payload.get("custom:isAdmin", "").lower() == "true"
             user.save()
             self.handle_user_jwt_details(user, payload)
             login(request, user)
