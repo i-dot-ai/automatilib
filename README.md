@@ -17,6 +17,7 @@ It provides common features used in many of our applications.
 * `LOGIN_URL` - The URL to redirect users to if they are not logged in
 * `COLA_COOKIE_NAME` - The name of the cookie to check for COLA JWT
 * `COLA_COGNITO_CLIENT_ID` - The cognito client ID found in AWS
+* `COLA_LOGIN_FAILURE` - Where the user should be redirected to in the event of authentication failure.
 * `AWS_REGION_NAME` - The AWS region that the user pool and cognito client live in
 * `COLA_COGNITO_USER_POOL_ID` - The cognito user pool ID in AWS
 
@@ -29,6 +30,7 @@ This is where some of the above can be found:
 * `COLA_COGNITO_USER_POOL_ID`: In AWS, go to your cognito user pool, in the top table called `User pool overview`, your `User pool ID` is there
 * `COLA_LOGIN_URL`: Ask the COLA team for this URL
 * `COLA_JWT_REGEX_PATTERN`: This is one you can adjust how you want to, the baseline is `(?<=:).*(?=\.)`
+* `COLA_LOGIN_FAILURE` - This should be a route in your app, if not specified the user will get a raw 401 plain text message.
 
 
 ## To make use of COLA

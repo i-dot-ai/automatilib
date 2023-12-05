@@ -5,7 +5,6 @@ from django.urls import reverse
 from jose import jwt
 
 from automatilib.cola.views import COLA_JWK_URL
-from example_project import settings
 
 
 @pytest.mark.django_db
@@ -73,7 +72,11 @@ def test_cola_failure(alice, cola_client):
         ("exp", 0),  # 1st jan 1970
     ],
 )
-def test_invalid_token(client, jwt_payload, private_pem, cola_cognito_user_pool_jwk, claim, value):
+@pytest.mark.parametrize("cola_login_failure_url", [None, "login-failure"])
+def test_invalid_token(
+    settings, client, jwt_payload, private_pem, cola_cognito_user_pool_jwk, claim, value, cola_login_failure_url
+):
+    settings.COLA_LOGIN_FAILURE = cola_login_failure_url
     # invalidate the jwt
     jwt_payload[claim] = value
     header = {"alg": "RS256", "kid": "MY-KID-ID"}
@@ -88,6 +91,8 @@ def test_invalid_token(client, jwt_payload, private_pem, cola_cognito_user_pool_
 
         response = client.get(reverse("hello-world"), follow=True)
 
+    # check that invalid cookie has been flushed
+    assert not client.cookies[settings.COLA_COOKIE_NAME].value
     assert response.status_code == 401
 
 
