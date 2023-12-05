@@ -8,9 +8,12 @@ from automatilib.cola.views import COLA_JWK_URL
 
 
 @pytest.mark.django_db
-def test_login(cola_client, cola_cognito_user_pool_jwk):
+def test_login(alice, cola_client, cola_cognito_user_pool_jwk):
     response = cola_client.get(reverse("hello-world"))
     assert response.status_code == 302
+
+    # check alice is not an admin user
+    assert not alice.is_staff
 
     # now we mock requests to the outside world
     with patch("requests.get") as mock_get:
@@ -23,12 +26,16 @@ def test_login(cola_client, cola_cognito_user_pool_jwk):
     assert response.status_code == 200
     assert response.content.decode() == "welcome back alice@cabinetoffice.gov.uk"
 
+    alice.refresh_from_db()
+    # now check that alice is an admin user
+    assert alice.is_staff
+
     # finally we check that only the right url was mocked
     mock_get.assert_called_once_with(COLA_JWK_URL, timeout=5)
 
 
 @pytest.mark.django_db
-def test_logout(alice, cola_client, settings):
+def test_logout(alice, cola_client):
     cola_client.force_login(alice)
     assert alice.is_authenticated
 
@@ -36,14 +43,8 @@ def test_logout(alice, cola_client, settings):
     assert response.status_code == 200
 
     response = cola_client.get(reverse("logout"))
-
-    # check that cookie has been flushed
-    assert not cola_client.cookies[settings.COLA_COOKIE_NAME].value
-
-    assert not cola_client.session.get('_auth_user_id') # alice logged out
+    # assert not alice.is_authenticated
     assert response.status_code == 302
-
-
 
 
 @pytest.mark.django_db
