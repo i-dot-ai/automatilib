@@ -142,13 +142,13 @@ class ColaLogin(View):
             LOGGER.error(f"cookie error: {error}")
             if getattr(settings, "COLA_LOGIN_FAILURE", None) is not None:
                 permanent_redirect = redirect(reverse(settings.COLA_LOGIN_FAILURE), status=401)
-                response.delete_cookie(
+                permanent_redirect.delete_cookie(
                     settings.COLA_COOKIE_NAME, domain=".cabinetoffice.gov.uk", secure=True, httponly=True
                 )
                 return permanent_redirect
 
             temporary_redirect = HttpResponse("Unauthorized", status=401)
-            response.delete_cookie(
+            temporary_redirect.delete_cookie(
                 settings.COLA_COOKIE_NAME, domain=".cabinetoffice.gov.uk", secure=True, httponly=True
             )
             return temporary_redirect
