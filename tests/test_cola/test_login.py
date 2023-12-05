@@ -28,7 +28,7 @@ def test_login(cola_client, cola_cognito_user_pool_jwk):
 
 
 @pytest.mark.django_db
-def test_logout(alice, cola_client):
+def test_logout(alice, cola_client, settings):
     cola_client.force_login(alice)
     assert alice.is_authenticated
 
@@ -36,8 +36,14 @@ def test_logout(alice, cola_client):
     assert response.status_code == 200
 
     response = cola_client.get(reverse("logout"))
-    # assert not alice.is_authenticated
+
+    # check that cookie has been flushed
+    assert not cola_client.cookies[settings.COLA_COOKIE_NAME].value
+
+    assert not alice.is_authenticated
     assert response.status_code == 302
+
+
 
 
 @pytest.mark.django_db
