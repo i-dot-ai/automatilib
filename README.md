@@ -24,7 +24,7 @@ It provides common features used in many of our applications.
 This is where some of the above can be found:
 
 * `COLA_COOKIE_NAME`: In your json settings file for COLA
-* `COLA_COOKIE_DOMAIN`: `cabinetoffice.gov.uk`
+* `COLA_COOKIE_DOMAIN`: is `.cabinetoffice.gov.uk` by default
 * `COLA_COGNITO_CLIENT_ID`: In AWS, go to your cognito user pool, then to app integration, then at the bottom you can find your client ID in the table
 * `AWS_REGION_NAME`: Whichever region in AWS your Cognito pool lives, likely to be `eu-west-2`
 * `COLA_COGNITO_USER_POOL_ID`: In AWS, go to your cognito user pool, in the top table called `User pool overview`, your `User pool ID` is there

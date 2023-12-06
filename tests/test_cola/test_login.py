@@ -40,10 +40,8 @@ def test_logout(alice, cola_client, settings):
     # check that cookie has been flushed
     assert not cola_client.cookies[settings.COLA_COOKIE_NAME].value
 
-    assert not cola_client.session.get('_auth_user_id') # alice logged out
+    assert not cola_client.session.get("_auth_user_id")  # alice logged out
     assert response.status_code == 302
-
-
 
 
 @pytest.mark.django_db
