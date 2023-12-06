@@ -28,14 +28,12 @@ SETTINGS = (
     "COLA_COOKIE_NAME",
     "LOGIN_REDIRECT_URL",
     "LOGIN_URL",
-    "COLA_COOKIE_DOMAIN",
 )
 for setting_key in SETTINGS:
     if not getattr(settings, setting_key):
         raise ImproperlyConfigured(f"{setting_key} must be set")
 
-if not settings.COLA_COOKIE_DOMAIN.startswith("."):
-    raise ImproperlyConfigured("COLA domain should start with '.'")
+COLA_COOKIE_DOMAIN = getattr(settings, "COLA_COOKIE_DOMAIN", ".cabinetoffice.gov.uk")
 
 COLA_ISSUER = f"https://cognito-idp.{settings.AWS_REGION_NAME}.amazonaws.com/{settings.COLA_COGNITO_USER_POOL_ID}"
 
@@ -44,7 +42,7 @@ COLA_JWK_URL = f"{COLA_ISSUER}/.well-known/jwks.json"
 
 def flush_cola_cookie(response: HttpResponse) -> HttpResponse:
     """delete COLA cookie from response"""
-    response.delete_cookie(settings.COLA_COOKIE_NAME, domain=settings.COLA_COOKIE_DOMAIN)
+    response.delete_cookie(settings.COLA_COOKIE_NAME, domain=COLA_COOKIE_DOMAIN)
     return response
 
 
