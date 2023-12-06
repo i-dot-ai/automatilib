@@ -67,11 +67,11 @@ class ColaLogout(View):
         :param request: The HTTP request
         :return: A HTTP response without the JWT token cookie
         """
-        logout(request)
 
-        redirect_url = settings.LOGIN_URL
-        response = redirect(reverse(redirect_url))
-        return flush_cola_cookie(response)
+        response = redirect(reverse(settings.LOGIN_URL))
+        response_without_cookie = flush_cola_cookie(response)
+        logout(request)
+        return response_without_cookie
 
 
 class ColaLogin(View):
