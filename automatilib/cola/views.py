@@ -33,10 +33,17 @@ for setting_key in SETTINGS:
     if not getattr(settings, setting_key):
         raise ImproperlyConfigured(f"{setting_key} must be set")
 
+COLA_COOKIE_DOMAIN = getattr(settings, "COLA_COOKIE_DOMAIN", ".cabinetoffice.gov.uk")
 
 COLA_ISSUER = f"https://cognito-idp.{settings.AWS_REGION_NAME}.amazonaws.com/{settings.COLA_COGNITO_USER_POOL_ID}"
 
 COLA_JWK_URL = f"{COLA_ISSUER}/.well-known/jwks.json"
+
+
+def flush_cola_cookie(response: HttpResponse) -> HttpResponse:
+    """delete COLA cookie from response"""
+    response.delete_cookie(settings.COLA_COOKIE_NAME, domain=COLA_COOKIE_DOMAIN)
+    return response
 
 
 class ColaLogout(View):
@@ -60,12 +67,11 @@ class ColaLogout(View):
         :param request: The HTTP request
         :return: A HTTP response without the JWT token cookie
         """
-        logout(request)
 
-        redirect_url = settings.LOGIN_URL
-        response = redirect(reverse(redirect_url))
-        response.delete_cookie(settings.COLA_COOKIE_NAME)
-        return response
+        response = redirect(reverse(settings.LOGIN_URL))
+        response_without_cookie = flush_cola_cookie(response)
+        logout(request)
+        return response_without_cookie
 
 
 class ColaLogin(View):
@@ -142,12 +148,10 @@ class ColaLogin(View):
             LOGGER.error(f"cookie error: {error}")
             if getattr(settings, "COLA_LOGIN_FAILURE", None) is not None:
                 permanent_redirect = redirect(reverse(settings.COLA_LOGIN_FAILURE), status=401)
-                permanent_redirect.delete_cookie(settings.COLA_COOKIE_NAME)
-                return permanent_redirect
+                return flush_cola_cookie(permanent_redirect)
 
             temporary_redirect = HttpResponse("Unauthorized", status=401)
-            temporary_redirect.delete_cookie(settings.COLA_COOKIE_NAME)
-            return temporary_redirect
+            return flush_cola_cookie(temporary_redirect)
 
         authenticated_user = {
             "email": payload["email"],
@@ -162,4 +166,4 @@ class ColaLogin(View):
             return redirect(reverse(settings.LOGIN_REDIRECT_URL))
 
         LOGGER.error("No user found")
-        return HttpResponse("Unauthorized", status=401)
+        return flush_cola_cookie(HttpResponse("Unauthorized", status=401))
