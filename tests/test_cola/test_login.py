@@ -54,7 +54,9 @@ def test_already_logged_in(alice, client):
 @pytest.mark.django_db
 def test_no_cookies(alice, client):
     response = client.get(reverse("hello-world"), follow=True)
-    assert response.status_code == 401
+    assert response.status_code == 200
+    assert "An error has occurred" in response.content.decode()
+    assert "No cookie found" in response.content.decode()
 
 
 @pytest.mark.django_db
@@ -64,7 +66,9 @@ def test_cola_failure(alice, cola_client):
         mock_response.status_code = 500
 
         response = cola_client.get(reverse("hello-world"), follow=True)
-    assert response.status_code == 401
+    assert response.status_code == 200
+    assert "An error has occurred" in response.content.decode()
+    assert "Failed to login" in response.content.decode()
 
 
 @pytest.mark.django_db
@@ -97,7 +101,9 @@ def test_invalid_token(
 
     # check that invalid cookie has been flushed
     assert not client.cookies[settings.COLA_COOKIE_NAME].value
-    assert response.status_code == 401
+    assert response.status_code == 200
+    assert "An error has occurred" in response.content.decode()
+    assert "Failed to login" in response.content.decode()
 
 
 @pytest.mark.django_db
@@ -116,8 +122,9 @@ def test_authenticate_fails(cola_client, cola_cognito_user_pool_jwk):
 
         response = cola_client.get(reverse("hello-world"), follow=True)
 
-    assert response.status_code == 401
-    assert response.content.decode() == "Unauthorized"
+    assert response.status_code == 200
+    assert "An error has occurred" in response.content.decode()
+    assert "Failed to login" in response.content.decode()
 
     # finally we check that only the right url was mocked
     mock_get.assert_called_once_with(COLA_JWK_URL, timeout=5)
