@@ -20,6 +20,8 @@ It provides common features used in many of our applications.
 * `COLA_LOGIN_FAILURE` - Where the user should be redirected to in the event of authentication failure.
 * `AWS_REGION_NAME` - The AWS region that the user pool and cognito client live in
 * `COLA_COGNITO_USER_POOL_ID` - The cognito user pool ID in AWS
+* `LOGIN_FAILURE_TEMPLATE_PATH` - The path to an error template for authenticating with COLA errors
+* `CONTACT_EMAIL` - The contact email to be used in the login error template
 
 This is where some of the above can be found:
 
