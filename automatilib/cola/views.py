@@ -14,8 +14,10 @@ from django.http import (
     HttpResponsePermanentRedirect,
     HttpResponseRedirect,
 )
-from django.shortcuts import redirect
-from django.urls import reverse
+from django.shortcuts import redirect, render
+from django.template import TemplateDoesNotExist
+from django.template.loader import get_template
+from django.urls import Resolver404, reverse
 from django.views import View
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError, JWTClaimsError, JWTError
@@ -28,10 +30,18 @@ SETTINGS = (
     "COLA_COOKIE_NAME",
     "LOGIN_REDIRECT_URL",
     "LOGIN_URL",
+    "LOGIN_FAILURE_TEMPLATE_PATH",
+    "CONTACT_EMAIL",
 )
 for setting_key in SETTINGS:
     if not getattr(settings, setting_key):
         raise ImproperlyConfigured(f"{setting_key} must be set")
+
+try:
+    get_template(settings.LOGIN_FAILURE_TEMPLATE_PATH)
+except Resolver404:
+    LOGGER.error("If you intend to use COLA, please create the `post-login-errors` view")
+    raise TemplateDoesNotExist("If you intend to use COLA, please create the `post-login-errors` view")
 
 COLA_COOKIE_DOMAIN = getattr(settings, "COLA_COOKIE_DOMAIN", ".cabinetoffice.gov.uk")
 
@@ -44,6 +54,17 @@ def flush_cola_cookie(response: HttpResponse) -> HttpResponse:
     """delete COLA cookie from response"""
     response.delete_cookie(settings.COLA_COOKIE_NAME, domain=COLA_COOKIE_DOMAIN)
     return response
+
+
+def show_error_template(request: HttpRequest, message: str, logger_message: str) -> HttpResponse:
+    error_response = render(
+        request,
+        settings.LOGIN_FAILURE_TEMPLATE_PATH,
+        {"errors": message, "contact_email": settings.CONTACT_EMAIL},
+    )
+    flush_cola_cookie(error_response)
+    LOGGER.error(logger_message)
+    return error_response
 
 
 class ColaLogout(View):
@@ -111,13 +132,11 @@ class ColaLogin(View):
         self.pre_login()
 
         if not (cola_cookie := request.COOKIES.get(settings.COLA_COOKIE_NAME, None)):
-            LOGGER.error("No cookie found")
-            return HttpResponse("Unauthorized", status=401)
+            return show_error_template(request, "No cookie found", "No cookie found")
 
         response = requests.get(COLA_JWK_URL, timeout=5)
         if response.status_code != 200:
-            LOGGER.error("Failed to get expected response from COLA")
-            return HttpResponse("Unauthorized", status=401)
+            return show_error_template(request, "Failed to login", "Failed to get expected response from COLA")
 
         cola_cognito_user_pool_jwk = response.json()
 
@@ -145,13 +164,7 @@ class ColaLogin(View):
                 },
             )
         except (ExpiredSignatureError, JWTClaimsError, JWTError) as error:
-            LOGGER.error(f"cookie error: {error}")
-            if getattr(settings, "COLA_LOGIN_FAILURE", None) is not None:
-                permanent_redirect = redirect(reverse(settings.COLA_LOGIN_FAILURE), status=401)
-                return flush_cola_cookie(permanent_redirect)
-
-            temporary_redirect = HttpResponse("Unauthorized", status=401)
-            return flush_cola_cookie(temporary_redirect)
+            return show_error_template(request, "Failed to login", f"cookie error: {error}")
 
         authenticated_user = {
             "email": payload["email"],
@@ -165,5 +178,4 @@ class ColaLogin(View):
             self.post_login()
             return redirect(reverse(settings.LOGIN_REDIRECT_URL))
 
-        LOGGER.error("No user found")
-        return flush_cola_cookie(HttpResponse("Unauthorized", status=401))
+        return show_error_template(request, "Failed to login", "No user found")
