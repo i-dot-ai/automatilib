@@ -21,6 +21,7 @@ class COLAAuthenticationBackend(ModelBackend):
         """
         try:
             email = kwargs["user_response"]["email"]
+            email = email.lower()
         except KeyError:
             LOGGER.error("non-COLA authentication attempt made")
             return None

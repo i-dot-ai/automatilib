@@ -11,9 +11,9 @@ def backend():
 
 @pytest.mark.django_db
 def test_authenticate(backend):
-    email = "someone@cabinetoffice.gov.uk"
+    email = "Someone@Example.com"
     user = backend.authenticate(request=HttpRequest(), user_response={"email": email})
-    assert user.email == email
+    assert user.email == email.lower()
 
 
 def test_authenticate_fail(backend):
